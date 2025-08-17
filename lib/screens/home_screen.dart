@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:pick_pay/screens/shoes_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
+import 'accessories_screen.dart';
+import 'clothing_screen.dart';
+import 'makeup_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -302,20 +306,60 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // 🔹 Category Chip
   Widget _buildCategoryChip(String title) {
-    return Container(
-      margin: const EdgeInsets.only(right: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF2e4cb6), Color(0xFF6a7de9)],
+    return GestureDetector(
+      onTap: () {
+        // Navigate based on category
+        switch (title) {
+          case "Clothing":
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ClothingScreen(products: _products),
+              ),
+            );
+            break;
+          case "Shoes":
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ShoesScreen(products: _products),
+              ),
+            );
+            break;
+          case "Accessories":
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => AccessoriesScreen(products: _products),
+              ),
+            );
+            break;
+          case "MakeUp":
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => MakeUpScreen(products: _products),
+              ),
+            );
+            break;
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.only(right: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF2e4cb6), Color(0xFF6a7de9)],
+          ),
+          borderRadius: BorderRadius.circular(20),
         ),
-        borderRadius: BorderRadius.circular(20),
+        child: Text(title,
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14)),
       ),
-      child: Text(title,
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14)),
     );
   }
+
 
   // 🔹 Product Card
   Widget _buildProductCard(String name, String category, int price) {
