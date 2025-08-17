@@ -1,0 +1,55 @@
+      backgroundColor: Color(0XFF2e4cb6), //blue
+#f7c803 //yellow
+
+
+// Custom Animated Button
+              GestureDetector(
+                onTapDown: (_) => setState(() => _pressed = true),
+                onTapUp: (_) => setState(() => _pressed = false),
+                onTapCancel: () => setState(() => _pressed = false),
+                onTap: () {
+                  // TODO: Navigate to home screen
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  decoration: BoxDecoration(
+                    color: const Color(0XFF2e4cb6),
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: _pressed
+                        ? [
+                      BoxShadow(
+                        color: const Color(0xFFF7C803),
+                        blurRadius: 12,
+                        spreadRadius: 2,
+                      )
+                    ]
+                        : [],
+                  ),
+                  child: const Text(
+                    "Get Started",
+                    style: TextStyle(fontSize: 20, color: Colors.white),
+                  ),
+                ),
+              ),
+
+
+
+
+
+
+
+
+
+
+  // font style
+ const Text(
+                 'Pick&Pay',
+                 textAlign: TextAlign.center,
+                 style: TextStyle(
+                   fontSize: 40,
+                   fontWeight: FontWeight.bold,
+                   color: Color(0XFF2e4cb6),
+                   fontFamily: 'Serif',
+                 ),
+               ),
