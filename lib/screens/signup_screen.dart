@@ -3,6 +3,7 @@ import 'package:pick_pay/screens/login_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/preferences_provider.dart';
+import 'home_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -85,7 +86,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
         final preferencesProvider = Provider.of<PreferencesProvider>(context, listen: false);
         preferencesProvider.userId = userProvider.user!.email; // Use email as userId
         if (mounted) {
-          Navigator.pushReplacementNamed(context, '/home');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+
         }
       } catch (e) {
         if (mounted) {

@@ -5,6 +5,8 @@ import '../providers/user_provider.dart';
 import '../models/user.dart';
 import 'dart:io';
 
+import 'home_screen.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -46,7 +48,10 @@ class _LoginScreenState extends State<LoginScreen> {
         final preferencesProvider = Provider.of<PreferencesProvider>(context, listen: false);
         preferencesProvider.userId = userProvider.user!.email; // Use email as userId for simplicity
         if (mounted) {
-          Navigator.pushReplacementNamed(context, '/home');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
         }
       } catch (e) {
         if (mounted) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pick_pay/providers/preferences_provider.dart';
 import 'package:pick_pay/providers/user_provider.dart';
 import 'package:pick_pay/screens/get_started.dart';
+import 'package:pick_pay/screens/home_screen.dart';
 import 'package:pick_pay/screens/login_screen.dart';
 import 'package:pick_pay/screens/signup_screen.dart';
 import 'package:provider/provider.dart';
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
       '/getStarted': (context) => const GetStartedScreen(),
       '/signup': (context) => const SignUpScreen(),
       '/LoginScreen': (context) => const LoginScreen(),
+      '/home': (context) => HomeScreen(),
     },
         ),
   );
