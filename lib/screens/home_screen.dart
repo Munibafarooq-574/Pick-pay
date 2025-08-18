@@ -1,8 +1,13 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pick_pay/screens/shoes_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart'; // For modern typography
+// For custom icons
+import 'package:cached_network_image/cached_network_image.dart'; // For efficient image loading
+import '../manager/cart_manager.dart';
 import '../providers/user_provider.dart';
 import 'accessories_screen.dart';
 import 'cart_screen.dart';
@@ -25,52 +30,52 @@ class _HomeScreenState extends State<HomeScreen> {
     {
       "title": "Trendy Sneakers Sale!",
       "category": "Shoes",
-     // "image": "assets/ads/sneakers_ad.png",
+      // "image": "assets/ads/sneakers_ad.png",
     },
     {
       "title": "Elegant Dresses Collection",
       "category": "Clothing",
-      //"image": "assets/ads/dresses_ad.png",
+      // "image": "assets/ads/dresses_ad.png",
     },
     {
       "title": "Stylish Handbags Offer",
       "category": "Accessories",
-      //"image": "assets/ads/handbags_ad.png",
+      // "image": "assets/ads/handbags_ad.png",
     },
     {
       "title": "Glam Makeup Deals",
       "category": "MakeUp",
-      //"image": "assets/ads/makeup_ad.png",
+      // "image": "assets/ads/makeup_ad.png",
     },
     {
       "name": "Sports Shoes",
       "category": "Shoes",
       "price": 2500,
-      //"image": "assets/sports_shoes.png"
+      // "image": "assets/sports_shoes.png"
     },
     {
       "name": "Formal Shirt",
       "category": "Clothing",
       "price": 1800,
-      //"image": "assets/products/formal_shirt.png"
+      // "image": "assets/products/formal_shirt.png"
     },
     {
       "name": "Handbag",
       "category": "Accessories",
       "price": 2200,
-    //  "image": "assets/products/handbag.png"
+      // "image": "assets/products/handbag.png"
     },
     {
       "name": "Smart Watch",
       "category": "Electronics",
       "price": 6000,
-     // "image": "assets/products/smart_watch.png"
+      // "image": "assets/products/smart_watch.png"
     },
     {
       "name": "Casual Shoes",
       "category": "Shoes",
       "price": 2800,
-     // "image": "assets/products/casual_shoes.png"
+      // "image": "assets/products/casual_shoes.png"
     },
   ];
 
@@ -78,7 +83,8 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _selectedIndex = index;
     });
-    if (index == 1) { // Cart icon tapped
+    if (index == 1) {
+      // Cart icon tapped
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -87,7 +93,6 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
   }
-
 
   String getUserInitials(String name) {
     List<String> names = name.split(" ");
@@ -102,6 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
     final user = userProvider.user;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     final filteredProducts = _products
         .where((item) =>
@@ -325,16 +331,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          childAspectRatio: 0.72,
+                          childAspectRatio: 0.65, // Adjusted to match ProductListScreen
                           crossAxisSpacing: 14,
                           mainAxisSpacing: 14,
                         ),
                         itemBuilder: (context, index) {
                           final product = filteredProducts[index];
                           return _buildProductCard(
-                            product["name"],
-                            product["category"],
-                            product["price"],
+                            product,
+                            index,
+                            isDarkMode,
                           );
                         },
                       ),
@@ -546,88 +552,174 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildProductCard(String name, String category, int price) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black12, blurRadius: 6, offset: const Offset(0, 4))
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              Container(
-                height: 130,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(18)),
-                ),
-                child: const Icon(Icons.image, size: 60, color: Colors.grey),
+  Widget _buildProductCard(Map<String, dynamic> product, int index, bool isDarkMode) {
+    final isPopular = product['isPopular'] == true;
+    final discount = product['discount'] as double? ?? 0.0;
+    final name = product['name'] ?? 'Product Name';
+    final price = (product['price'] as num?)?.toDouble().toStringAsFixed(2) ?? '0.00';
+    final category = product['category'] ?? 'Unknown';
+
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        // Create a structured product map for the cart
+        final cartProduct = {
+          'name': name,
+          'price': double.tryParse(price) ?? 0.0,
+          'type': category,
+          'imageUrl': product['image'] ?? 'https://example.com/placeholder.jpg',
+        };
+        CartManager.instance.addToCart(cartProduct);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$name added to cart')),
+        );
+      },
+      child: Hero(
+        tag: 'product_$index',
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDarkMode ? Colors.grey[800] : Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: isDarkMode ? Colors.black26 : Colors.black12,
+                blurRadius: 6,
+                offset: const Offset(0, 4),
               ),
-              Positioned(
-                right: 8,
-                top: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 4,
-                            offset: const Offset(0, 2))
-                      ]),
-                  child: const Icon(Icons.favorite_border,
-                      color: Colors.red, size: 18),
-                ),
-              )
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 4),
-                Text(category,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Rs. $price",
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF2e4cb6))),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2e4cb6),
-                        borderRadius: BorderRadius.circular(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  Container(
+                    height: 130,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: isDarkMode ? Colors.grey[600] : Colors.grey[200],
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+                      child: CachedNetworkImage(
+                        imageUrl: product['image'] ?? 'https://example.com/placeholder.jpg',
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        errorWidget: (context, url, error) => const Icon(Icons.image_not_supported, size: 60, color: Colors.grey),
                       ),
-                      child: const Icon(Icons.add, color: Colors.white, size: 18),
-                    )
+                    ),
+                  ),
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: isDarkMode ? Colors.grey[700] : Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDarkMode ? Colors.black26 : Colors.black12,
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.favorite_border,
+                        color: isPopular ? Colors.red : Colors.grey,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                  if (discount > 0)
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '${discount.toInt()}% Off',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: isDarkMode ? Colors.white70 : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      category,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Rs. $price',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.bold,
+                            color: isDarkMode ? Colors.white70 : const Color(0xFF2e4cb6),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            final cartProduct = {
+                              'name': name,
+                              'price': double.tryParse(price) ?? 0.0,
+                              'type': category,
+                              'imageUrl': product['image'] ?? 'https://example.com/placeholder.jpg',
+                            };
+                            CartManager.instance.addToCart(cartProduct);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('$name added to cart')),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: isDarkMode ? Colors.grey[600] : const Color(0xFF2e4cb6),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.add, color: Colors.white, size: 18),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
-          )
-        ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

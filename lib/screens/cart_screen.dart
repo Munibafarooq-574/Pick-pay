@@ -58,7 +58,7 @@ class _CartScreenState extends State<CartScreen> {
                     final item = cartItems[index];
                     return _buildCartItem(
                       item['name'],
-                      item['category'],
+                      item['category'] ?? item['type'], // Fallback to 'type' for compatibility
                       item['price'],
                       item['quantity'],
                       index,
@@ -76,64 +76,106 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildCartItem(String name, String category, double price, int quantity, int index) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2))],
+    return Dismissible(
+      key: Key('$name-$index'), // Unique key for each item
+      direction: DismissDirection.endToStart, // Swipe left to delete
+      background: Container(
+        color: Colors.red,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        margin: const EdgeInsets.only(bottom: 12),
+        child: const Icon(Icons.delete, color: Colors.white, size: 30),
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            color: Colors.grey.shade200,
-            child: const Icon(Icons.image, size: 40, color: Colors.grey),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  category,
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "Rs. ${price.toStringAsFixed(2)}",
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF2e4cb6),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.remove_circle_outline, color: Color(0xFF2e4cb6)),
-                onPressed: () => CartManager.instance.updateQuantity(index, quantity - 1),
+      confirmDismiss: (direction) async {
+        // Show confirmation dialog
+        return await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Remove Item"),
+            content: Text("Are you sure you want to remove $name from your cart?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false), // Cancel
+                child: const Text("Cancel"),
               ),
-              Text(
-                "$quantity",
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-              IconButton(
-                icon: const Icon(Icons.add_circle_outline, color: Color(0xFF2e4cb6)),
-                onPressed: () => CartManager.instance.updateQuantity(index, quantity + 1),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true), // Confirm
+                child: const Text(
+                  "Remove",
+                  style: TextStyle(color: Colors.red),
+                ),
               ),
             ],
           ),
-        ],
+        );
+      },
+      onDismissed: (direction) {
+        // Remove item from cart
+        CartManager.instance.updateQuantity(index, 0);
+        // Show snackbar to confirm deletion
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$name removed from cart')),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2))],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              color: Colors.grey.shade200,
+              child: const Icon(Icons.image, size: 40, color: Colors.grey),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    category,
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Rs. ${price.toStringAsFixed(2)}",
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2e4cb6),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.remove_circle_outline, color: Color(0xFF2e4cb6)),
+                  onPressed: () => CartManager.instance.updateQuantity(index, quantity - 1),
+                ),
+                Text(
+                  "$quantity",
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline, color: Color(0xFF2e4cb6)),
+                  onPressed: () => CartManager.instance.updateQuantity(index, quantity + 1),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
