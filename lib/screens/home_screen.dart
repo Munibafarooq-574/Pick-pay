@@ -1,8 +1,11 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:pick_pay/screens/shoes_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import 'accessories_screen.dart';
+import 'cart_screen.dart';
 import 'clothing_screen.dart';
 import 'makeup_screen.dart';
 
@@ -75,7 +78,16 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _selectedIndex = index;
     });
+    if (index == 1) { // Cart icon tapped
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const CartScreen(),
+        ),
+      );
+    }
   }
+
 
   String getUserInitials(String name) {
     List<String> names = name.split(" ");

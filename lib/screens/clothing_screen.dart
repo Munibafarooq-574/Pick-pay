@@ -475,7 +475,6 @@ class _ClothingScreenState extends State<ClothingScreen> with TickerProviderStat
   }
 
 
-
   void _navigateToProducts(String section, String type) {
     final filteredProducts = _products
         .where((product) =>

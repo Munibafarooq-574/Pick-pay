@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For haptic feedback
 import 'package:google_fonts/google_fonts.dart'; // For modern typography
 import 'package:flutter_iconly/flutter_iconly.dart'; // For custom icons
-import 'package:cached_network_image/cached_network_image.dart'; // For efficient image loading
+import 'package:cached_network_image/cached_network_image.dart';
+import '../manager/cart_manager.dart'; // For efficient image loading
 
 class ProductListScreen extends StatefulWidget {
   final List<Map<String, dynamic>> products;
@@ -196,7 +197,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
       crossAxisCount: 2,
       crossAxisSpacing: 16,
       mainAxisSpacing: 16,
-      childAspectRatio: 0.65, // Adjusted for new card height
+      childAspectRatio: 0.65,
       children: _displayedProducts.asMap().entries.map((entry) {
         final index = entry.key;
         final product = entry.value;
@@ -209,14 +210,23 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
     final isPopular = product['isPopular'] == true;
     final discount = product['discount'] as double? ?? 0.0;
     final name = product['name'] ?? 'Product Name';
-    final price = product['price']?.toStringAsFixed(2) ?? '0.00';
-    final category = product['type'] ?? 'Unknown'; // Use 'type' as category name (e.g., Sneakers, Heels, Lipstick)
+    final price = (product['price'] as num?)?.toDouble().toStringAsFixed(2) ?? '0.00';
+    final category = product['type'] ?? 'Unknown';
 
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
-        // Navigate to product detail page (placeholder)
-        // Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailScreen(product: product)));
+        // Create a structured product map for the cart
+        final cartProduct = {
+          'name': name,
+          'price': double.tryParse(price) ?? 0.0,
+          'type': category,
+          'imageUrl': product['imageUrl'] ?? 'https://example.com/placeholder.jpg',
+        };
+        CartManager.instance.addToCart(cartProduct);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$name added to cart')),
+        );
       },
       child: Hero(
         tag: 'product_$index',
@@ -235,7 +245,6 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image placeholder + favorite
               Stack(
                 children: [
                   Container(
@@ -300,7 +309,6 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
                     ),
                 ],
               ),
-              // Details
               Padding(
                 padding: const EdgeInsets.all(10),
                 child: Column(
@@ -338,6 +346,13 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
                         GestureDetector(
                           onTap: () {
                             HapticFeedback.lightImpact();
+                            final cartProduct = {
+                              'name': name,
+                              'price': double.tryParse(price) ?? 0.0,
+                              'type': category,
+                              'imageUrl': product['imageUrl'] ?? 'https://example.com/placeholder.jpg',
+                            };
+                            CartManager.instance.addToCart(cartProduct);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('$name added to cart')),
                             );
