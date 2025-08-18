@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pick_pay/manager/cart_manager.dart';
 import 'package:pick_pay/screens/home_screen.dart';
+import 'package:pick_pay/screens/checkout_screen.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -58,7 +59,7 @@ class _CartScreenState extends State<CartScreen> {
                     final item = cartItems[index];
                     return _buildCartItem(
                       item['name'],
-                      item['category'] ?? item['type'], // Fallback to 'type' for compatibility
+                      item['category'] ?? item['type'],
                       item['price'],
                       item['quantity'],
                       index,
@@ -77,8 +78,8 @@ class _CartScreenState extends State<CartScreen> {
 
   Widget _buildCartItem(String name, String category, double price, int quantity, int index) {
     return Dismissible(
-      key: Key('$name-$index'), // Unique key for each item
-      direction: DismissDirection.endToStart, // Swipe left to delete
+      key: Key('$name-$index'),
+      direction: DismissDirection.endToStart,
       background: Container(
         color: Colors.red,
         alignment: Alignment.centerRight,
@@ -87,7 +88,6 @@ class _CartScreenState extends State<CartScreen> {
         child: const Icon(Icons.delete, color: Colors.white, size: 30),
       ),
       confirmDismiss: (direction) async {
-        // Show confirmation dialog
         return await showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -95,11 +95,11 @@ class _CartScreenState extends State<CartScreen> {
             content: Text("Are you sure you want to remove $name from your cart?"),
             actions: [
               TextButton(
-                onPressed: () => Navigator.of(context).pop(false), // Cancel
+                onPressed: () => Navigator.of(context).pop(false),
                 child: const Text("Cancel"),
               ),
               TextButton(
-                onPressed: () => Navigator.of(context).pop(true), // Confirm
+                onPressed: () => Navigator.of(context).pop(true),
                 child: const Text(
                   "Remove",
                   style: TextStyle(color: Colors.red),
@@ -110,9 +110,7 @@ class _CartScreenState extends State<CartScreen> {
         );
       },
       onDismissed: (direction) {
-        // Remove item from cart
         CartManager.instance.updateQuantity(index, 0);
-        // Show snackbar to confirm deletion
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('$name removed from cart')),
         );
@@ -211,9 +209,89 @@ class _CartScreenState extends State<CartScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Proceeding to checkout")),
-              ),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text("Confirm Checkout"),
+                    content: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Are you sure you want to proceed to checkout?",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            "Items in Cart:",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+                          ...cartItems.asMap().entries.map((entry) {
+                            final item = entry.value;
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      "${item['name']} (x${item['quantity']})",
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ),
+                                  Text(
+                                    "Rs. ${(item['price'] * item['quantity']).toStringAsFixed(2)}",
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Total Amount:",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                "Rs. ${total.toStringAsFixed(0)}",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF2e4cb6),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text("Cancel"),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const CheckoutScreen()),
+                          );
+                        },
+                        child: const Text(
+                          "Confirm",
+                          style: TextStyle(color: Color(0xFF2e4cb6)),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2e4cb6),
                 padding: const EdgeInsets.symmetric(vertical: 16),
