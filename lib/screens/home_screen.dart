@@ -20,6 +20,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Map<String, dynamic>> _products = [
     {
+      "title": "Trendy Sneakers Sale!",
+      "category": "Shoes",
+     // "image": "assets/ads/sneakers_ad.png",
+    },
+    {
+      "title": "Elegant Dresses Collection",
+      "category": "Clothing",
+      //"image": "assets/ads/dresses_ad.png",
+    },
+    {
+      "title": "Stylish Handbags Offer",
+      "category": "Accessories",
+      //"image": "assets/ads/handbags_ad.png",
+    },
+    {
+      "title": "Glam Makeup Deals",
+      "category": "MakeUp",
+      //"image": "assets/ads/makeup_ad.png",
+    },
+    {
       "name": "Sports Shoes",
       "category": "Shoes",
       "price": 2500,
@@ -35,19 +55,19 @@ class _HomeScreenState extends State<HomeScreen> {
       "name": "Handbag",
       "category": "Accessories",
       "price": 2200,
-      //"image": "assets/products/handbag.png"
+    //  "image": "assets/products/handbag.png"
     },
     {
       "name": "Smart Watch",
       "category": "Electronics",
       "price": 6000,
-      //"image": "assets/products/smart_watch.png"
+     // "image": "assets/products/smart_watch.png"
     },
     {
       "name": "Casual Shoes",
       "category": "Shoes",
       "price": 2800,
-      //"image": "assets/products/casual_shoes.png"
+     // "image": "assets/products/casual_shoes.png"
     },
   ];
 
@@ -57,7 +77,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  // 🔹 Helper to get initials from full name
   String getUserInitials(String name) {
     List<String> names = name.split(" ");
     String initials = "";
@@ -74,26 +93,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final filteredProducts = _products
         .where((item) =>
+    item.containsKey("name") &&
         item["name"].toLowerCase().contains(_searchQuery.toLowerCase()))
         .toList();
+
+    final ads = _products.where((item) => item.containsKey("title")).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 🔹 Header with greeting + profile
-              Row(
+        child: Column(
+          children: [
+            // 🔹 Fixed Header with Greeting + Profile
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Left side: Logo + greeting in a row
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Logo fully to the left
                       SizedBox(
                         height: 100,
                         width: 100,
@@ -103,13 +122,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(width: 0.1),
-
-                      // Greeting & Username stacked vertically, slightly lower
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 33), // pushes "Hello" lower
+                          const SizedBox(height: 33),
                           const Text(
                             "Hello,",
                             style: TextStyle(
@@ -130,8 +147,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-
-                  // Right side: notifications + avatar
                   Row(
                     children: [
                       Container(
@@ -165,13 +180,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
+            ),
 
+            const SizedBox(height: 20),
 
-
-              const SizedBox(height: 20),
-
-              // 🔹 Search + Filter
-              Row(
+            // 🔹 Fixed Search + Filter
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
                 children: [
                   Expanded(
                     child: Container(
@@ -206,7 +222,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       setState(() {
                         _isFilterVisible = !_isFilterVisible;
                       });
-                      // Add your filter logic here, e.g., show a dialog or navigate to a filter screen
                       _showFilterDialog(context);
                     },
                     child: Container(
@@ -227,64 +242,98 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
+            ),
 
-              const SizedBox(height: 25),
+            const SizedBox(height: 25),
 
-              // 🔹 Categories (chips style)
-              const Text("Categories",
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87)),
-              const SizedBox(height: 12),
+            // 🔹 Scrollable Content: Categories to Popular Products
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 🔹 Categories
+                      const Text("Categories",
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87)),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 40,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: [
+                            _buildCategoryChip("Clothing"),
+                            _buildCategoryChip("Shoes"),
+                            _buildCategoryChip("MakeUp"),
+                            _buildCategoryChip("Accessories"),
+                          ],
+                        ),
+                      ),
 
-              SizedBox(
-                height: 40,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    _buildCategoryChip("Clothing"),
-                    _buildCategoryChip("Shoes"),
-                    _buildCategoryChip("MakeUp"),
-                    _buildCategoryChip("Accessories"),
-                  ],
-                ),
-              ),
+                      const SizedBox(height: 25),
 
-              const SizedBox(height: 25),
+                      // 🔹 Ads Carousel
+                      const Text("Special Offers",
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87)),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 150,
+                        child: PageView.builder(
+                          itemCount: ads.length,
+                          itemBuilder: (context, index) {
+                            final ad = ads[index];
+                            return _buildAdCard(
+                                ad["title"], ad["category"], ad["image"] ?? "");
+                          },
+                          controller: PageController(viewportFraction: 0.9),
+                          padEnds: true,
+                        ),
+                      ),
 
-              // 🔹 Product Grid
-              const Text("Popular Products",
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87)),
-              const SizedBox(height: 12),
+                      const SizedBox(height: 25),
 
-              Expanded(
-                child: GridView.builder(
-                  itemCount: filteredProducts.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.72,
-                    crossAxisSpacing: 14,
-                    mainAxisSpacing: 14,
+                      // 🔹 Popular Products
+                      const Text("Popular Products",
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87)),
+                      const SizedBox(height: 12),
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: filteredProducts.length,
+                        gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.72,
+                          crossAxisSpacing: 14,
+                          mainAxisSpacing: 14,
+                        ),
+                        itemBuilder: (context, index) {
+                          final product = filteredProducts[index];
+                          return _buildProductCard(
+                            product["name"],
+                            product["category"],
+                            product["price"],
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                  itemBuilder: (context, index) {
-                    final product = filteredProducts[index];
-                    return _buildProductCard(
-                      product["name"],
-                      product["category"],
-                      product["price"],
-                    );
-                  },
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-      // 🔹 Modern Floating Bottom Navigation
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Container(
@@ -310,15 +359,128 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-
     );
   }
 
-  // 🔹 Category Chip
+  Widget _buildAdCard(String title, String category, String image) {
+    return GestureDetector(
+      onTap: () {
+        switch (category) {
+          case "Clothing":
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ClothingScreen(products: _products),
+              ),
+            );
+            break;
+          case "Shoes":
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ShoesScreen(products: _products),
+              ),
+            );
+            break;
+          case "Accessories":
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => AccessoriesScreen(products: _products),
+              ),
+            );
+            break;
+          case "MakeUp":
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => MakeUpScreen(products: _products),
+              ),
+            );
+            break;
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 6,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(18),
+          child: Stack(
+            children: [
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                ),
+                child: image.isNotEmpty
+                    ? Image.asset(
+                  image,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                    Icons.image,
+                    size: 60,
+                    color: Colors.grey,
+                  ),
+                )
+                    : const Icon(
+                  Icons.image,
+                  size: 60,
+                  color: Colors.grey,
+                ),
+              ),
+              Positioned(
+                bottom: 10,
+                left: 10,
+                right: 10,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        category,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildCategoryChip(String title) {
     return GestureDetector(
       onTap: () {
-        // Navigate based on category
         switch (title) {
           case "Clothing":
             Navigator.push(
@@ -363,15 +525,15 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Text(title,
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14)),
+        child: Text(
+          title,
+          style: const TextStyle(
+              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
+        ),
       ),
     );
   }
 
-
-  // 🔹 Product Card
   Widget _buildProductCard(String name, String category, int price) {
     return Container(
       decoration: BoxDecoration(
@@ -385,7 +547,6 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image placeholder + favorite
           Stack(
             children: [
               Container(
@@ -418,18 +579,18 @@ class _HomeScreenState extends State<HomeScreen> {
               )
             ],
           ),
-
-          // Details
           Padding(
             padding: const EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w600)),
+                Text(
+                  name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600),
+                ),
                 const SizedBox(height: 4),
                 Text(category,
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
@@ -447,8 +608,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: const Color(0xFF2e4cb6),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.add,
-                          color: Colors.white, size: 18),
+                      child: const Icon(Icons.add, color: Colors.white, size: 18),
                     )
                   ],
                 ),
@@ -485,10 +645,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
-
   }
 
-  // Add this method to show a simple filter dialog
   void _showFilterDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -502,7 +660,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: const Text("Sort by Price: Low to High"),
                 onTap: () {
                   setState(() {
-                    _products.sort((a, b) => a["price"].compareTo(b["price"]));
+                    _products.sort(
+                            (a, b) => a["price"]?.compareTo(b["price"] ?? 0) ?? 0);
                   });
                   Navigator.pop(context);
                 },
@@ -511,7 +670,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: const Text("Sort by Price: High to Low"),
                 onTap: () {
                   setState(() {
-                    _products.sort((a, b) => b["price"].compareTo(a["price"]));
+                    _products.sort(
+                            (a, b) => b["price"]?.compareTo(a["price"] ?? 0) ?? 0);
                   });
                   Navigator.pop(context);
                 },
@@ -528,5 +688,4 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
-
 }
