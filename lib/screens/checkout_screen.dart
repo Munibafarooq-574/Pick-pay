@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pick_pay/screens/payment_successful_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:pick_pay/manager/cart_manager.dart';
 import 'package:pick_pay/providers/user_provider.dart';
-import 'package:pick_pay/screens/home_screen.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -629,7 +629,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       );
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (_) => const HomeScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => PaymentSuccessfulScreen(
+                            purchasedProducts: cartItems.map((item) {
+                              return {
+                                'name': item['name'],
+                                'price': item['price'],
+                                'quantity': item['quantity'],
+                              };
+                            }).toList(),
+                            addressDetails: {
+                              'name': '${firstNameController.text} ${lastNameController.text}',
+                              'addressLine1': addressController.text,
+                              'addressLine2': landmarkController.text,
+                              'city': cityController.text,
+                              'state': '', // Add actual state if available
+                              'postalCode': postalCodeController.text,
+                              'country': selectedCountry ?? 'Pakistan',
+                              'phone': phoneController.text,
+                            },
+                            shippingMethod: 'Standard Shipping', // Replace with actual shipping method if available
+                            paymentMethod: 'Credit Card', // Replace with actual payment method if available
+                          ),
+                        ),
                       );
                     },
                     child: AnimatedContainer(
