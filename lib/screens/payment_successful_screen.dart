@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pick_pay/screens/home_screen.dart';
 
-class PaymentSuccessfulScreen extends StatelessWidget {
+class PaymentSuccessfulScreen extends StatefulWidget {
   final List<Map<String, dynamic>> purchasedProducts;
   final Map<String, dynamic> addressDetails;
   final String shippingMethod;
@@ -16,10 +16,17 @@ class PaymentSuccessfulScreen extends StatelessWidget {
   });
 
   @override
+  State<PaymentSuccessfulScreen> createState() => _PaymentSuccessfulScreenState();
+}
+
+class _PaymentSuccessfulScreenState extends State<PaymentSuccessfulScreen> {
+  bool _backPressed = false;
+
+  @override
   Widget build(BuildContext context) {
     const Color primaryBlue = Color(0xFF2e4cb6);
 
-    double totalAmount = purchasedProducts.fold(
+    double totalAmount = widget.purchasedProducts.fold(
         0, (sum, item) => sum + (item['price'] * item['quantity']));
 
     return Scaffold(
@@ -106,7 +113,7 @@ class PaymentSuccessfulScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          ...purchasedProducts.map((product) {
+                          ...widget.purchasedProducts.map((product) {
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 6),
                               child: Row(
@@ -175,32 +182,14 @@ class PaymentSuccessfulScreen extends StatelessWidget {
                             ),
                           ),
                           const Divider(),
-                          Text(
-                            "${addressDetails['name']}",
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          Text(
-                            "${addressDetails['addressLine1']}",
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          if (addressDetails['addressLine2'] != null &&
-                              addressDetails['addressLine2'].isNotEmpty)
-                            Text(
-                              "${addressDetails['addressLine2']}",
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                          Text(
-                            "${addressDetails['city']}, ${addressDetails['state']} ${addressDetails['postalCode']}",
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          Text(
-                            "${addressDetails['country']}",
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          Text(
-                            "Phone: ${addressDetails['phone']}",
-                            style: const TextStyle(fontSize: 16),
-                          ),
+                          Text("${widget.addressDetails['name']}", style: const TextStyle(fontSize: 16)),
+                          Text("${widget.addressDetails['addressLine1']}", style: const TextStyle(fontSize: 16)),
+                          if (widget.addressDetails['addressLine2'] != null &&
+                              widget.addressDetails['addressLine2'].isNotEmpty)
+                            Text("${widget.addressDetails['addressLine2']}", style: const TextStyle(fontSize: 16)),
+                          Text("${widget.addressDetails['city']}, ${widget.addressDetails['state']} ${widget.addressDetails['postalCode']}", style: const TextStyle(fontSize: 16)),
+                          Text("${widget.addressDetails['country']}", style: const TextStyle(fontSize: 16)),
+                          Text("Phone: ${widget.addressDetails['phone']}", style: const TextStyle(fontSize: 16)),
                         ],
                       ),
                     ),
@@ -233,30 +222,16 @@ class PaymentSuccessfulScreen extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                "Shipping Method",
-                                style: TextStyle(fontSize: 16),
-                              ),
-                              Text(
-                                shippingMethod,
-                                style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
+                              const Text("Shipping Method", style: TextStyle(fontSize: 16)),
+                              Text(widget.shippingMethod, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                             ],
                           ),
                           const SizedBox(height: 8),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                "Payment Method",
-                                style: TextStyle(fontSize: 16),
-                              ),
-                              Text(
-                                paymentMethod,
-                                style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
+                              const Text("Payment Method", style: TextStyle(fontSize: 16)),
+                              Text(widget.paymentMethod, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                             ],
                           ),
                         ],
@@ -284,35 +259,46 @@ class PaymentSuccessfulScreen extends StatelessWidget {
                 ),
               ),
             ),
-            // Fixed Back to Home Button
+            // Fixed Animated Back to Home Button
             Positioned(
               bottom: 16,
               left: 16,
               right: 16,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryBlue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 50,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                onPressed: () {
+              child: GestureDetector(
+                onTapDown: (_) => setState(() => _backPressed = true),
+                onTapUp: (_) {
+                  setState(() => _backPressed = false);
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (_) => const HomeScreen()),
                         (route) => false,
                   );
                 },
-                child: const Text(
-                  "Back to Home",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                onTapCancel: () => setState(() => _backPressed = false),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 50),
+                  decoration: BoxDecoration(
+                    color: primaryBlue,
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: _backPressed
+                        ? [
+                      const BoxShadow(
+                        color: Color(0xFFF7C803),
+                        blurRadius: 12,
+                        spreadRadius: 2,
+                      ),
+                    ]
+                        : [],
+                  ),
+                  alignment: Alignment.center,
+                  child: const Text(
+                    "Back to Home",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
