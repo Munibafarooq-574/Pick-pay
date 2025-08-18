@@ -1,11 +1,13 @@
-import 'dart:ui';
+// ignore_for_file: unused_element, sort_child_properties_last, deprecated_member_use
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For haptic feedback
 import 'package:google_fonts/google_fonts.dart'; // For modern typography
 import 'package:flutter_iconly/flutter_iconly.dart'; // For custom icons
 import 'package:pick_pay/screens/product_list_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // For persistent state
-import 'package:shimmer/shimmer.dart'; // For shimmer effect
+// For shimmer effect
 
 class AccessoriesScreen extends StatefulWidget {
   final List<Map<String, dynamic>> products;
@@ -31,11 +33,6 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
   };
 
   // Icons for sections (nullable IconData to allow null)
-  final Map<String, IconData?> _sectionIcons = {
-    "Jewelry": null,
-    "Bags": null,
-    "Watches": null,
-  };
 
   // Category-specific background images
   final Map<String, String> _categoryImages = {
@@ -44,6 +41,73 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
     "Watches": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRB3t-KusnC07Y4jIVjxMXn5F0KztaD6DJvcw&s",
   };
 
+  // List of products
+  final List<Map<String, dynamic>> _products = [
+    // Jewelry products
+    {
+      "id": 1,
+      "name": "Gold Necklace",
+      "price": 5000.0,
+      "imageUrl": "https://example.com/gold_necklace.jpg",
+      "section": "Jewelry",
+      "type": "Necklaces",
+      "isPopular": true,
+      "discount": 15.0,
+    },
+    {
+      "id": 2,
+      "name": "Silver Earrings",
+      "price": 1200.0,
+      "imageUrl": "https://example.com/silver_earrings.jpg",
+      "section": "Jewelry",
+      "type": "Earrings",
+      "isPopular": false,
+      "discount": 5.0,
+    },
+    // Bags products
+    {
+      "id": 3,
+      "name": "Leather Handbag",
+      "price": 3000.0,
+      "imageUrl": "https://example.com/leather_handbag.jpg",
+      "section": "Bags",
+      "type": "Handbags",
+      "isPopular": true,
+      "discount": 10.0,
+    },
+    {
+      "id": 4,
+      "name": "Backpack",
+      "price": 1500.0,
+      "imageUrl": "https://example.com/backpack.jpg",
+      "section": "Bags",
+      "type": "Backpacks",
+      "isPopular": false,
+      "discount": 0.0,
+    },
+    // Watches products
+    {
+      "id": 5,
+      "name": "Analog Watch",
+      "price": 4000.0,
+      "imageUrl": "https://example.com/analog_watch.jpg",
+      "section": "Watches",
+      "type": "Analog",
+      "isPopular": true,
+      "discount": 20.0,
+    },
+    {
+      "id": 6,
+      "name": "Smart Watch",
+      "price": 6000.0,
+      "imageUrl": "https://example.com/smart_watch.jpg",
+      "section": "Watches",
+      "type": "Smart Watches",
+      "isPopular": false,
+      "discount": 5.0,
+    },
+  ];
+
   // Search controller
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -51,8 +115,6 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
 
   // Animation controllers
   late AnimationController _gradientAnimationController;
-  late Animation<Color?> _colorAnimation1;
-  late Animation<Color?> _colorAnimation2;
   late AnimationController _fabAnimationController;
   late Animation<double> _fabScaleAnimation;
 
@@ -60,7 +122,9 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
   void initState() {
     super.initState();
     _loadSelections().catchError((e) {
-      print('Error loading selections: $e');
+      if (kDebugMode) {
+        print('Error loading selections: $e');
+      }
     });
 
     // Gradient animation controller
@@ -68,14 +132,6 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
       duration: const Duration(seconds: 8),
       vsync: this,
     )..repeat(reverse: true);
-    _colorAnimation1 = ColorTween(
-      begin: const Color(0xFFd81b60),
-      end: const Color(0xFF8e24aa),
-    ).animate(_gradientAnimationController);
-    _colorAnimation2 = ColorTween(
-      begin: const Color(0xFF8e24aa),
-      end: const Color(0xFFd81b60),
-    ).animate(_gradientAnimationController);
 
     // FAB animation controller
     _fabAnimationController = AnimationController(
@@ -108,7 +164,9 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
         });
       });
     } catch (e) {
-      print('Error loading preferences: $e');
+      if (kDebugMode) {
+        print('Error loading preferences: $e');
+      }
     }
   }
 
@@ -122,7 +180,9 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
         await prefs.remove('selected_accessory_$section');
       }
     } catch (e) {
-      print('Error saving selection: $e');
+      if (kDebugMode) {
+        print('Error saving selection: $e');
+      }
     }
   }
 
@@ -195,13 +255,13 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30),
                                 borderSide: BorderSide(
-                                  color: _isSearchFocused ? const Color(0xFFd81b60) : Colors.grey[400]!,
+                                  color: _isSearchFocused ? const Color(0XFF2e4cb6): Colors.grey[400]!,
                                   width: 2,
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Color(0xFFd81b60), width: 2),
+                                borderSide: const BorderSide(color: Color(0XFF2e4cb6), width: 2),
                               ),
                             ),
                             onChanged: (value) {
@@ -267,16 +327,7 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
       backgroundColor: Colors.white,
       elevation: 0,
       centerTitle: true,
-      actions: [
-        IconButton(
-          icon: const Icon(IconlyLight.filter),
-          color: Colors.black,
-          onPressed: () {
-            _showSortOptions();
-          },
-          tooltip: 'Sort & Filter',
-        ),
-      ],
+
     );
   }
 
@@ -327,62 +378,61 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
       ),
-      child: GestureDetector(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          _showTypeSelection(section);
-        },
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Hero(
-              tag: section,
-              child: Container(
-                height: 437,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  image: DecorationImage(
-                    image: NetworkImage(_categoryImages[section]!),
-                    fit: BoxFit.cover,
-                    opacity: 1.0,
-                    onError: (exception, stackTrace) {
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Image is now non-interactive
+          Hero(
+            tag: section,
+            child: Container(
+              height: 437,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                image: DecorationImage(
+                  image: NetworkImage(_categoryImages[section]!),
+                  fit: BoxFit.cover,
+                  opacity: 1.0,
+                  onError: (exception, stackTrace) {
+                    if (kDebugMode) {
                       print('Image load error for $section: $exception');
-                    },
+                    }
+                  },
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
+                ],
               ),
             ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: () {
-                _showCategoryButtonOptions(section);
-              },
-              child: Text(
-                section,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFd81b60),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                minimumSize: const Size(150, 40),
+          ),
+          const SizedBox(height: 8),
+          // Button handles all interactions
+          ElevatedButton(
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              _showCategoryButtonOptions(section);
+            },
+            child: Text(
+              section,
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
             ),
-          ],
-        ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0XFF2e4cb6),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              minimumSize: const Size(150, 40),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -455,9 +505,9 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
                     height: 10,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount: widget.products.where((p) => p['section'] == section).length,
+                      itemCount: _products.where((p) => p['section'] == section).length,
                       itemBuilder: (context, index) {
-                        final product = widget.products.where((p) => p['section'] == section).toList()[index];
+                        final product = _products.where((p) => p['section'] == section).toList()[index];
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: ClipRRect(
@@ -468,7 +518,9 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
                               height: 500,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
-                                print('Image error for product: $error');
+                                if (kDebugMode) {
+                                  print('Image error for product: $error');
+                                }
                                 return const Icon(Icons.image_not_supported, size: 50);
                               },
                             ),
@@ -568,7 +620,7 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
   }
 
   void _navigateToProducts(String section, String type) {
-    final filteredProducts = widget.products
+    final filteredProducts = _products
         .where((product) => product['section'] == section && product['type'] == type)
         .toList();
     if (filteredProducts.isNotEmpty) {

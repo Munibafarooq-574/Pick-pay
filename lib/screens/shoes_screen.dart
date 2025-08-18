@@ -1,11 +1,11 @@
-import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For haptic feedback
 import 'package:google_fonts/google_fonts.dart'; // For modern typography
 import 'package:flutter_iconly/flutter_iconly.dart'; // For custom icons
 import 'package:pick_pay/screens/product_list_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // For persistent state
-import 'package:shimmer/shimmer.dart'; // For shimmer effect
+// For shimmer effect
 
 class ShoesScreen extends StatefulWidget {
   final List<Map<String, dynamic>> products;
@@ -34,12 +34,6 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
   };
 
   // Icons for sections (nullable IconData to allow null)
-  final Map<String, IconData?> _sectionIcons = {
-    "Women": null,
-    "Men": null,
-    "Boys": null,
-    "Girls": null,
-  };
 
   // Category-specific background images
   final Map<String, String> _categoryImages = {
@@ -49,6 +43,50 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
     "Girls": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMLM2SWahLkFxALgYrO19p43aD1q3UeQAhvBJXLit5k1TQKs23L65N-zTrI1Kx6W8jkm0&usqp=CAU",
   };
 
+  // List of products
+  final List<Map<String, dynamic>> _products = [
+    // Women products
+    {"id": 1, "name": "White Sneakers", "price": 2500.0, "imageUrl": "https://example.com/white_sneakers_women.jpg", "section": "Women", "type": "Sneakers", "isPopular": true, "discount": 10.0},
+    {"id": 2, "name": "Black Sneakers", "price": 2300.0, "imageUrl": "https://example.com/black_sneakers_women.jpg", "section": "Women", "type": "Sneakers", "isPopular": false, "discount": 5.0},
+    {"id": 3, "name": "Blue Sneakers", "price": 2400.0, "imageUrl": "https://example.com/blue_sneakers_women.jpg", "section": "Women", "type": "Sneakers", "isPopular": true, "discount": 0.0},
+    {"id": 4, "name": "Red Sneakers", "price": 2600.0, "imageUrl": "https://example.com/red_sneakers_women.jpg", "section": "Women", "type": "Sneakers", "isPopular": false, "discount": 15.0},
+    {"id": 5, "name": "High Heels", "price": 3500.0, "imageUrl": "https://example.com/high_heels_women.jpg", "section": "Women", "type": "Heels", "isPopular": true, "discount": 10.0},
+    {"id": 6, "name": "Black Heels", "price": 3200.0, "imageUrl": "https://example.com/black_heels_women.jpg", "section": "Women", "type": "Heels", "isPopular": false, "discount": 5.0},
+    {"id": 7, "name": "Red Heels", "price": 3400.0, "imageUrl": "https://example.com/red_heels_women.jpg", "section": "Women", "type": "Heels", "isPopular": true, "discount": 0.0},
+    {"id": 8, "name": "Silver Heels", "price": 3600.0, "imageUrl": "https://example.com/silver_heels_women.jpg", "section": "Women", "type": "Heels", "isPopular": false, "discount": 15.0},
+    {"id": 9, "name": "Leather Boots", "price": 4000.0, "imageUrl": "https://example.com/leather_boots_women.jpg", "section": "Women", "type": "Boots", "isPopular": true, "discount": 10.0},
+    {"id": 10, "name": "Brown Boots", "price": 3800.0, "imageUrl": "https://example.com/brown_boots_women.jpg", "section": "Women", "type": "Boots", "isPopular": false, "discount": 5.0},
+    {"id": 11, "name": "Black Sandals", "price": 1800.0, "imageUrl": "https://example.com/black_sandals_women.jpg", "section": "Women", "type": "Sandals", "isPopular": true, "discount": 0.0},
+    {"id": 12, "name": "White Sandals", "price": 2000.0, "imageUrl": "https://example.com/white_sandals_women.jpg", "section": "Women", "type": "Sandals", "isPopular": false, "discount": 15.0},
+    // Men products
+    {"id": 13, "name": "Black Sneakers", "price": 2800.0, "imageUrl": "https://example.com/black_sneakers_men.jpg", "section": "Men", "type": "Sneakers", "isPopular": true, "discount": 10.0},
+    {"id": 14, "name": "Grey Sneakers", "price": 2600.0, "imageUrl": "https://example.com/grey_sneakers_men.jpg", "section": "Men", "type": "Sneakers", "isPopular": false, "discount": 5.0},
+    {"id": 15, "name": "Blue Sneakers", "price": 2700.0, "imageUrl": "https://example.com/blue_sneakers_men.jpg", "section": "Men", "type": "Sneakers", "isPopular": true, "discount": 0.0},
+    {"id": 16, "name": "White Sneakers", "price": 2900.0, "imageUrl": "https://example.com/white_sneakers_men.jpg", "section": "Men", "type": "Sneakers", "isPopular": false, "discount": 15.0},
+    {"id": 17, "name": "Black Formal Shoes", "price": 3200.0, "imageUrl": "https://example.com/black_formal_shoes_men.jpg", "section": "Men", "type": "Formal Shoes", "isPopular": true, "discount": 10.0},
+    {"id": 18, "name": "Brown Formal Shoes", "price": 3000.0, "imageUrl": "https://example.com/brown_formal_shoes_men.jpg", "section": "Men", "type": "Formal Shoes", "isPopular": false, "discount": 5.0},
+    {"id": 19, "name": "Tan Formal Shoes", "price": 3100.0, "imageUrl": "https://example.com/tan_formal_shoes_men.jpg", "section": "Men", "type": "Formal Shoes", "isPopular": true, "discount": 0.0},
+    {"id": 20, "name": "Grey Formal Shoes", "price": 3300.0, "imageUrl": "https://example.com/grey_formal_shoes_men.jpg", "section": "Men", "type": "Formal Shoes", "isPopular": false, "discount": 15.0},
+    {"id": 21, "name": "Leather Boots", "price": 4200.0, "imageUrl": "https://example.com/leather_boots_men.jpg", "section": "Men", "type": "Boots", "isPopular": true, "discount": 10.0},
+    {"id": 22, "name": "Black Boots", "price": 4000.0, "imageUrl": "https://example.com/black_boots_men.jpg", "section": "Men", "type": "Boots", "isPopular": false, "discount": 5.0},
+    {"id": 23, "name": "Brown Sandals", "price": 2000.0, "imageUrl": "https://example.com/brown_sandals_men.jpg", "section": "Men", "type": "Sandals", "isPopular": true, "discount": 0.0},
+    {"id": 24, "name": "Black Sandals", "price": 2200.0, "imageUrl": "https://example.com/black_sandals_men.jpg", "section": "Men", "type": "Sandals", "isPopular": false, "discount": 15.0},
+    // Boys products
+    {"id": 25, "name": "Blue Sneakers", "price": 1500.0, "imageUrl": "https://example.com/blue_sneakers_boys.jpg", "section": "Boys", "type": "Sneakers", "isPopular": true, "discount": 10.0},
+    {"id": 26, "name": "Red Sneakers", "price": 1400.0, "imageUrl": "https://example.com/red_sneakers_boys.jpg", "section": "Boys", "type": "Sneakers", "isPopular": false, "discount": 5.0},
+    {"id": 27, "name": "Black School Shoes", "price": 1200.0, "imageUrl": "https://example.com/black_school_shoes_boys.jpg", "section": "Boys", "type": "School Shoes", "isPopular": true, "discount": 0.0},
+    {"id": 28, "name": "Brown School Shoes", "price": 1300.0, "imageUrl": "https://example.com/brown_school_shoes_boys.jpg", "section": "Boys", "type": "School Shoes", "isPopular": false, "discount": 15.0},
+    {"id": 29, "name": "Blue Sandals", "price": 1000.0, "imageUrl": "https://example.com/blue_sandals_boys.jpg", "section": "Boys", "type": "Sandals", "isPopular": true, "discount": 10.0},
+    {"id": 30, "name": "Green Sandals", "price": 1100.0, "imageUrl": "https://example.com/green_sandals_boys.jpg", "section": "Boys", "type": "Sandals", "isPopular": false, "discount": 5.0},
+    // Girls products
+    {"id": 31, "name": "Pink Sneakers", "price": 1600.0, "imageUrl": "https://example.com/pink_sneakers_girls.jpg", "section": "Girls", "type": "Sneakers", "isPopular": true, "discount": 10.0},
+    {"id": 32, "name": "White Sneakers", "price": 1500.0, "imageUrl": "https://example.com/white_sneakers_girls.jpg", "section": "Girls", "type": "Sneakers", "isPopular": false, "discount": 5.0},
+    {"id": 33, "name": "Black School Shoes", "price": 1300.0, "imageUrl": "https://example.com/black_school_shoes_girls.jpg", "section": "Girls", "type": "School Shoes", "isPopular": true, "discount": 0.0},
+    {"id": 34, "name": "Pink School Shoes", "price": 1400.0, "imageUrl": "https://example.com/pink_school_shoes_girls.jpg", "section": "Girls", "type": "School Shoes", "isPopular": false, "discount": 15.0},
+    {"id": 35, "name": "White Sandals", "price": 1100.0, "imageUrl": "https://example.com/white_sandals_girls.jpg", "section": "Girls", "type": "Sandals", "isPopular": true, "discount": 10.0},
+    {"id": 36, "name": "Purple Sandals", "price": 1200.0, "imageUrl": "https://example.com/purple_sandals_girls.jpg", "section": "Girls", "type": "Sandals", "isPopular": false, "discount": 5.0},
+  ];
+
   // Search controller
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -56,8 +94,6 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
 
   // Animation controllers
   late AnimationController _gradientAnimationController;
-  late Animation<Color?> _colorAnimation1;
-  late Animation<Color?> _colorAnimation2;
   late AnimationController _fabAnimationController;
   late Animation<double> _fabScaleAnimation;
 
@@ -65,7 +101,9 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
   void initState() {
     super.initState();
     _loadSelections().catchError((e) {
-      print('Error loading selections: $e');
+      if (kDebugMode) {
+        print('Error loading selections: $e');
+      }
     });
 
     // Gradient animation controller
@@ -73,14 +111,6 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
       duration: const Duration(seconds: 8),
       vsync: this,
     )..repeat(reverse: true);
-    _colorAnimation1 = ColorTween(
-      begin: const Color(0xFF2e4cb6),
-      end: const Color(0xFF8a4af3),
-    ).animate(_gradientAnimationController);
-    _colorAnimation2 = ColorTween(
-      begin: const Color(0xFF8a4af3),
-      end: const Color(0xFF2e4cb6),
-    ).animate(_gradientAnimationController);
 
     // FAB animation controller
     _fabAnimationController = AnimationController(
@@ -113,7 +143,9 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
         });
       });
     } catch (e) {
-      print('Error loading preferences: $e');
+      if (kDebugMode) {
+        print('Error loading preferences: $e');
+      }
     }
   }
 
@@ -127,7 +159,9 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
         await prefs.remove('selected_shoe_$section');
       }
     } catch (e) {
-      print('Error saving selection: $e');
+      if (kDebugMode) {
+        print('Error saving selection: $e');
+      }
     }
   }
 
@@ -145,8 +179,8 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
             });
           },
           backgroundColor: Colors.white,
-          child: const Icon(Icons.refresh, color: Colors.black),
           tooltip: 'Reset Selections',
+          child: const Icon(Icons.refresh, color: Colors.black),
         ),
       ),
       body: AnimatedContainer(
@@ -276,16 +310,7 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
       backgroundColor: Colors.white,
       elevation: 0,
       centerTitle: true,
-      actions: [
-        IconButton(
-          icon: const Icon(IconlyLight.filter),
-          color: Colors.black,
-          onPressed: () {
-            _showSortOptions();
-          },
-          tooltip: 'Sort & Filter',
-        ),
-      ],
+
     );
   }
 
@@ -332,66 +357,65 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
       },
       background: Container(
         color: Colors.red.withOpacity(0.3),
-        child: const Icon(Icons.delete, color: Colors.white),
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
+        child: const Icon(Icons.delete, color: Colors.white),
       ),
-      child: GestureDetector(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          _showTypeSelection(section);
-        },
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Hero(
-              tag: section,
-              child: Container(
-                height: 437,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  image: DecorationImage(
-                    image: NetworkImage(_categoryImages[section]!),
-                    fit: BoxFit.cover,
-                    opacity: 1.0,
-                    onError: (exception, stackTrace) {
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Image is now non-interactive
+          Hero(
+            tag: section,
+            child: Container(
+              height: 437,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                image: DecorationImage(
+                  image: NetworkImage(_categoryImages[section]!),
+                  fit: BoxFit.cover,
+                  opacity: 1.0,
+                  onError: (exception, stackTrace) {
+                    if (kDebugMode) {
                       print('Image load error for $section: $exception');
-                    },
+                    }
+                  },
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
+                ],
               ),
             ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: () {
-                _showCategoryButtonOptions(section);
-              },
-              child: Text(
-                section,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
+          ),
+          const SizedBox(height: 8),
+          // Button handles all interactions
+          ElevatedButton(
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              _showCategoryButtonOptions(section);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF2e4cb6),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2e4cb6),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                minimumSize: const Size(150, 40),
+              minimumSize: const Size(150, 40),
+            ),
+            child: Text(
+              section,
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -427,165 +451,10 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
     );
   }
 
-  void _showTypeSelection(String section) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      backgroundColor: Colors.white,
-      transitionAnimationController: AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 400),
-      )..forward(),
-      builder: (_) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.6,
-          maxChildSize: 0.9,
-          minChildSize: 0.4,
-          builder: (_, controller) {
-            return Container(
-              padding: const EdgeInsets.all(16),
-              child: ListView(
-                controller: controller,
-                children: [
-                  Text(
-                    "Select $section Shoes",
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    height: 10,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: widget.products
-                          .where((p) => p['section'] == section)
-                          .length,
-                      itemBuilder: (context, index) {
-                        final product = widget.products
-                            .where((p) => p['section'] == section)
-                            .toList()[index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.network(
-                              product['imageUrl'] ?? 'https://via.placeholder.com/200',
-                              width: 500,
-                              height: 500,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                print('Image error for product: $error');
-                                return const Icon(Icons.image_not_supported, size: 50);
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: _shoeTypes[section]!.map((type) {
-                      final isSelected = _selectedType[section] == type;
-                      return ChoiceChip(
-                        label: Text(
-                          type,
-                          style: GoogleFonts.poppins(
-                            color: isSelected
-                                ? Colors.white
-                                : Theme.of(context).textTheme.bodyLarge!.color,
-                          ),
-                        ),
-                        selected: isSelected,
-                        selectedColor: const Color(0xFF2e4cb6),
-                        backgroundColor: Colors.grey[200],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: BorderSide(
-                            color: isSelected ? Colors.transparent : Colors.grey[300]!,
-                          ),
-                        ),
-                        onSelected: (selected) {
-                          if (selected) {
-                            HapticFeedback.lightImpact();
-                            setState(() {
-                              _selectedType[section] = type;
-                              _saveSelection(section, type);
-                            });
-                            Navigator.pop(context);
-                            _navigateToProducts(section, type);
-                          }
-                        },
-                        avatar: isSelected
-                            ? const Icon(Icons.check_circle, color: Colors.white, size: 18)
-                            : null,
-                        labelPadding: const EdgeInsets.symmetric(horizontal: 12),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
 
-  void _showSortOptions() {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Sort & Filter",
-                style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              ListTile(
-                title: const Text("Price: Low to High"),
-                onTap: () {
-                  // Implement sorting logic
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: const Text("Price: High to Low"),
-                onTap: () {
-                  // Implement sorting logic
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: const Text("Popularity"),
-                onTap: () {
-                  // Implement sorting logic
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 
   void _navigateToProducts(String section, String type) {
-    final filteredProducts = widget.products
+    final filteredProducts = _products
         .where((product) => product['section'] == section && product['type'] == type)
         .toList();
     if (filteredProducts.isNotEmpty) {

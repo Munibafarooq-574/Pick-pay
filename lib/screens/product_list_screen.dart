@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, unnecessary_import
 
 import 'dart:ui'; // For BackdropFilter
 import 'package:flutter/material.dart';
@@ -6,7 +6,6 @@ import 'package:flutter/services.dart'; // For haptic feedback
 import 'package:google_fonts/google_fonts.dart'; // For modern typography
 import 'package:flutter_iconly/flutter_iconly.dart'; // For custom icons
 import 'package:cached_network_image/cached_network_image.dart'; // For efficient image loading
-import 'package:shimmer/shimmer.dart'; // For shimmer effect
 
 class ProductListScreen extends StatefulWidget {
   final List<Map<String, dynamic>> products;
@@ -21,8 +20,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
   late List<Map<String, dynamic>> _displayedProducts;
   bool _isLoading = true;
   String _sortOption = 'Popularity'; // Default sort option
-
-  // Animation controller for background gradient
+  bool _isHeld = false; // Track hold state
   late AnimationController _animationController;
   late Animation<Color?> _colorAnimation1;
   late Animation<Color?> _colorAnimation2;
@@ -30,25 +28,27 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
   @override
   void initState() {
     super.initState();
-    // Simulate loading for shimmer effect
+    // Simulate loading for initial display
     Future.delayed(const Duration(milliseconds: 1000), () {
-      setState(() {
-        _isLoading = false;
-        _displayedProducts = List.from(widget.products);
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _displayedProducts = List.from(widget.products);
+        });
+      }
     });
 
     _animationController = AnimationController(
       duration: const Duration(seconds: 8),
       vsync: this,
-    )..repeat(reverse: true);
+    );
     _colorAnimation1 = ColorTween(
-      begin: const Color(0xFF2e4cb6),
-      end: const Color(0xFF8a4af3),
+      begin: Colors.blue[200],
+      end: Colors.blue[800],
     ).animate(_animationController);
     _colorAnimation2 = ColorTween(
-      begin: const Color(0xFF8a4af3),
-      end: const Color(0xFF2e4cb6),
+      begin: Colors.blue[800],
+      end: Colors.blue[200],
     ).animate(_animationController);
   }
 
@@ -80,30 +80,52 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      body: AnimatedContainer(
-        duration: const Duration(seconds: 8),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [_colorAnimation1.value!, _colorAnimation2.value!],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // App bar
-              _buildAppBar(isDarkMode),
-              // Product grid
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: _isLoading ? _buildShimmerGrid() : _buildProductGrid(isDarkMode),
+    return GestureDetector(
+      onLongPress: () {
+        setState(() {
+          _isHeld = true;
+          _animationController.repeat(reverse: true);
+        });
+      },
+      onLongPressEnd: (_) {
+        setState(() {
+          _isHeld = false;
+          _animationController.stop();
+        });
+      },
+      child: Scaffold(
+        body: AnimatedBuilder(
+          animation: _animationController,
+          builder: (context, child) {
+            return Container(
+              decoration: _isHeld
+                  ? BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [_colorAnimation1.value!, _colorAnimation2.value!],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              )
+                  : BoxDecoration(
+                color: isDarkMode ? Colors.grey[900] : Colors.white,
+              ),
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    // App bar
+                    _buildAppBar(isDarkMode),
+                    // Product grid
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: _isLoading ? _buildShimmerGrid() : _buildProductGrid(isDarkMode),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -116,7 +138,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
         style: GoogleFonts.poppins(
           fontWeight: FontWeight.bold,
           fontSize: 24,
-          color: isDarkMode ? Colors.white70 : Colors.white,
+          color: isDarkMode ? Colors.white70 : Colors.black87,
         ),
       ),
       backgroundColor: Colors.transparent,
@@ -124,23 +146,25 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
       actions: [
         IconButton(
           icon: const Icon(IconlyLight.filter),
-          color: isDarkMode ? Colors.white70 : Colors.white,
+          color: isDarkMode ? Colors.white70 : Colors.black87,
           onPressed: _showSortOptions,
           tooltip: 'Sort & Filter',
         ),
         IconButton(
           icon: const Icon(Icons.refresh),
-          color: isDarkMode ? Colors.white70 : Colors.white,
+          color: isDarkMode ? Colors.white70 : Colors.black87,
           onPressed: () {
             HapticFeedback.lightImpact();
             setState(() {
               _isLoading = true;
               Future.delayed(const Duration(milliseconds: 1000), () {
-                setState(() {
-                  _isLoading = false;
-                  _displayedProducts = List.from(widget.products);
-                  _sortOption = 'Popularity';
-                });
+                if (mounted) {
+                  setState(() {
+                    _isLoading = false;
+                    _displayedProducts = List.from(widget.products);
+                    _sortOption = 'Popularity';
+                  });
+                }
               });
             });
           },
@@ -157,14 +181,10 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
       mainAxisSpacing: 16,
       childAspectRatio: 0.7,
       children: List.generate(6, (index) {
-        return Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(18),
           ),
         );
       }),
@@ -176,7 +196,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
       crossAxisCount: 2,
       crossAxisSpacing: 16,
       mainAxisSpacing: 16,
-      childAspectRatio: 0.7,
+      childAspectRatio: 0.65, // Adjusted for new card height
       children: _displayedProducts.asMap().entries.map((entry) {
         final index = entry.key;
         final product = entry.value;
@@ -188,6 +208,9 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
   Widget _buildProductCard(Map<String, dynamic> product, int index, bool isDarkMode) {
     final isPopular = product['isPopular'] == true;
     final discount = product['discount'] as double? ?? 0.0;
+    final name = product['name'] ?? 'Product Name';
+    final price = product['price']?.toStringAsFixed(2) ?? '0.00';
+    final category = product['type'] ?? 'Unknown'; // Use 'type' as category name (e.g., Sneakers, Heels, Lipstick)
 
     return GestureDetector(
       onTap: () {
@@ -197,125 +220,143 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
       },
       child: Hero(
         tag: 'product_$index',
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
+        child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: isDarkMode ? Colors.grey[800]?.withOpacity(0.5) : Colors.white.withOpacity(0.4),
-            border: Border.all(
-              color: isPopular ? const Color(0xFF2e4cb6).withOpacity(0.8) : Colors.white.withOpacity(0.2),
-              width: 2,
-            ),
+            color: isDarkMode ? Colors.grey[800] : Colors.white,
+            borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
-                color: isDarkMode ? Colors.black54 : Colors.black12,
-                blurRadius: 12,
+                color: isDarkMode ? Colors.black26 : Colors.black12,
+                blurRadius: 6,
                 offset: const Offset(0, 4),
               ),
             ],
           ),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Product image
-                Expanded(
-                  child: Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                        child: CachedNetworkImage(
-                          imageUrl: product['imageUrl'] ?? 'https://example.com/placeholder.jpg',
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          placeholder: (context, url) => Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: Container(color: Colors.white),
-                          ),
-                          errorWidget: (context, url, error) => const Icon(Icons.image_not_supported),
-                        ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Image placeholder + favorite
+              Stack(
+                children: [
+                  Container(
+                    height: 130,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: isDarkMode ? Colors.grey[600] : Colors.grey[200],
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+                      child: CachedNetworkImage(
+                        imageUrl: product['imageUrl'] ?? 'https://example.com/placeholder.jpg',
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        errorWidget: (context, url, error) => const Icon(Icons.image_not_supported, size: 60, color: Colors.grey),
                       ),
-                      if (isPopular || discount > 0)
-                        Positioned(
-                          top: 8,
-                          left: 8,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: isPopular ? Colors.red : Colors.green,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              isPopular ? 'Popular' : '${discount.toInt()}% Off',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
+                    ),
                   ),
-                ),
-                // Product details
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        product['name'] ?? 'Product Name',
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: isDarkMode ? Colors.white70 : Colors.black87,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textScaler: const TextScaler.linear(1.0),
-                        semanticsLabel: 'Product: ${product['name']}',
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: isDarkMode ? Colors.grey[700] : Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDarkMode ? Colors.black26 : Colors.black12,
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '\$${product['price']?.toStringAsFixed(2) ?? '0.00'}',
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: isDarkMode ? Colors.white70 : const Color(0xFF2e4cb6),
+                      child: Icon(
+                        Icons.favorite_border,
+                        color: isPopular ? Colors.red : Colors.grey,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                  if (discount > 0)
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '${discount.toInt()}% Off',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
+                    ),
+                ],
+              ),
+              // Details
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: isDarkMode ? Colors.white70 : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      category,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Rs. $price',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.bold,
+                            color: isDarkMode ? Colors.white70 : const Color(0xFF2e4cb6),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
                             HapticFeedback.lightImpact();
-                            // Add to cart logic (placeholder)
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('${product['name']} added to cart')),
+                              SnackBar(content: Text('$name added to cart')),
                             );
                           },
-                          icon: const Icon(IconlyLight.bag, size: 18),
-                          label: Text('Add', style: GoogleFonts.poppins()),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2e4cb6),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: isDarkMode ? Colors.grey[600] : const Color(0xFF2e4cb6),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            child: const Icon(Icons.add, color: Colors.white, size: 18),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -339,7 +380,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
               ListTile(
                 title: Text("Price: Low to High", style: GoogleFonts.poppins()),
                 trailing: _sortOption == 'Price: Low to High'
-                    ? const Icon(Icons.check, color: Color(0xFF2e4cb6))
+                    ? Icon(Icons.check, color: Colors.grey[800])
                     : null,
                 onTap: () {
                   _sortProducts('Price: Low to High');
@@ -349,7 +390,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
               ListTile(
                 title: Text("Price: High to Low", style: GoogleFonts.poppins()),
                 trailing: _sortOption == 'Price: High to Low'
-                    ? const Icon(Icons.check, color: Color(0xFF2e4cb6))
+                    ? Icon(Icons.check, color: Colors.grey[800])
                     : null,
                 onTap: () {
                   _sortProducts('Price: High to Low');
@@ -359,7 +400,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
               ListTile(
                 title: Text("Popularity", style: GoogleFonts.poppins()),
                 trailing: _sortOption == 'Popularity'
-                    ? const Icon(Icons.check, color: Color(0xFF2e4cb6))
+                    ? Icon(Icons.check, color: Colors.grey[800])
                     : null,
                 onTap: () {
                   _sortProducts('Popularity');

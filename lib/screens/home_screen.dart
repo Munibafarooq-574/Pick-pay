@@ -16,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   String _searchQuery = "";
+  bool _isFilterVisible = false;
 
   final List<Map<String, dynamic>> _products = [
     {
@@ -200,21 +201,30 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2e4cb6),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 6,
-                            offset: const Offset(0, 3))
-                      ],
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isFilterVisible = !_isFilterVisible;
+                      });
+                      // Add your filter logic here, e.g., show a dialog or navigate to a filter screen
+                      _showFilterDialog(context);
+                    },
+                    child: Container(
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2e4cb6),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 6,
+                              offset: const Offset(0, 3))
+                        ],
+                      ),
+                      child: const Icon(Icons.tune, color: Colors.white),
                     ),
-                    child: const Icon(Icons.tune, color: Colors.white),
-                  )
+                  ),
                 ],
               ),
 
@@ -476,6 +486,47 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
 
-    }
+  }
+
+  // Add this method to show a simple filter dialog
+  void _showFilterDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Filter Products"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text("Sort by Price: Low to High"),
+                onTap: () {
+                  setState(() {
+                    _products.sort((a, b) => a["price"].compareTo(b["price"]));
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text("Sort by Price: High to Low"),
+                onTap: () {
+                  setState(() {
+                    _products.sort((a, b) => b["price"].compareTo(a["price"]));
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Close"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
 }

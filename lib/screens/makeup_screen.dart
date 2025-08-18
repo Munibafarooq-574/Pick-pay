@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_import, avoid_print, sort_child_properties_last, deprecated_member_use
+
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For haptic feedback
@@ -5,9 +7,9 @@ import 'package:google_fonts/google_fonts.dart'; // For modern typography
 import 'package:flutter_iconly/flutter_iconly.dart'; // For custom icons
 import 'package:pick_pay/screens/product_list_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // For persistent state
-import 'package:shimmer/shimmer.dart'; // For shimmer effect
+// For shimmer effect
 
-class  MakeUpScreen extends StatefulWidget {
+class MakeUpScreen extends StatefulWidget {
   final List<Map<String, dynamic>> products;
   const MakeUpScreen({super.key, required this.products});
 
@@ -35,13 +37,6 @@ class _BeautyScreenState extends State<MakeUpScreen> with TickerProviderStateMix
   };
 
   // Icons for sections (nullable IconData to allow null)
-  final Map<String, IconData?> _sectionIcons = {
-    "Face Makeup": null,
-    "Lip Makeup": null,
-    "Eye Makeup": null,
-    "Skin Care": null,
-    "Nails": null,
-  };
 
   // Category-specific background images
   final Map<String, String> _categoryImages = {
@@ -52,6 +47,35 @@ class _BeautyScreenState extends State<MakeUpScreen> with TickerProviderStateMix
     "Nails": "https://nailzypakistan.com/cdn/shop/files/B1AD7B59-3757-4BAF-9295-3257E59A5F43.jpg?v=1734189914",
   };
 
+  // List of products
+  final List<Map<String, dynamic>> _products = [
+    // Face Makeup products
+    {"id": 1, "name": "Matte Foundation", "price": 1500.0, "imageUrl": "https://example.com/matte_foundation.jpg", "section": "Face Makeup", "type": "Foundation", "isPopular": true, "discount": 10.0},
+    {"id": 2, "name": "Cream Blush", "price": 800.0, "imageUrl": "https://example.com/cream_blush.jpg", "section": "Face Makeup", "type": "Blush", "isPopular": false, "discount": 5.0},
+    {"id": 3, "name": "Liquid Concealer", "price": 900.0, "imageUrl": "https://example.com/liquid_concealer.jpg", "section": "Face Makeup", "type": "Concealer", "isPopular": true, "discount": 0.0},
+    {"id": 4, "name": "Shimmer Highlighter", "price": 1200.0, "imageUrl": "https://example.com/shimmer_highlighter.jpg", "section": "Face Makeup", "type": "Highlighter", "isPopular": false, "discount": 15.0},
+    // Lip Makeup products
+    {"id": 5, "name": "Red Lipstick", "price": 1000.0, "imageUrl": "https://example.com/red_lipstick.jpg", "section": "Lip Makeup", "type": "Lipstick", "isPopular": true, "discount": 10.0},
+    {"id": 6, "name": "Glossy Lip Gloss", "price": 700.0, "imageUrl": "https://example.com/glossy_lip_gloss.jpg", "section": "Lip Makeup", "type": "Lip Gloss", "isPopular": false, "discount": 5.0},
+    {"id": 7, "name": "Pink Lip Liner", "price": 600.0, "imageUrl": "https://example.com/pink_lip_liner.jpg", "section": "Lip Makeup", "type": "Lip Liner", "isPopular": true, "discount": 0.0},
+    // Eye Makeup products
+    {"id": 8, "name": "Black Eyeliner", "price": 800.0, "imageUrl": "https://example.com/black_eyeliner.jpg", "section": "Eye Makeup", "type": "Eyeliner", "isPopular": true, "discount": 10.0},
+    {"id": 9, "name": "Volumizing Mascara", "price": 900.0, "imageUrl": "https://example.com/volumizing_mascara.jpg", "section": "Eye Makeup", "type": "Mascara", "isPopular": false, "discount": 5.0},
+    {"id": 10, "name": "Smokey Eyeshadow", "price": 1100.0, "imageUrl": "https://example.com/smokey_eyeshadow.jpg", "section": "Eye Makeup", "type": "Eyeshadow", "isPopular": true, "discount": 0.0},
+    {"id": 11, "name": "Brown Eyebrow Pencil", "price": 700.0, "imageUrl": "https://example.com/brown_eyebrow_pencil.jpg", "section": "Eye Makeup", "type": "Eyebrow Pencil", "isPopular": false, "discount": 15.0},
+    // Skin Care products
+    {"id": 12, "name": "Foam Cleanser", "price": 1200.0, "imageUrl": "https://example.com/foam_cleanser.jpg", "section": "Skin Care", "type": "Cleanser", "isPopular": true, "discount": 10.0},
+    {"id": 13, "name": "Hydrating Moisturizer", "price": 1500.0, "imageUrl": "https://example.com/hydrating_moisturizer.jpg", "section": "Skin Care", "type": "Moisturizer", "isPopular": false, "discount": 5.0},
+    {"id": 14, "name": "Vitamin C Serum", "price": 2000.0, "imageUrl": "https://example.com/vitamin_c_serum.jpg", "section": "Skin Care", "type": "Serum", "isPopular": true, "discount": 0.0},
+    {"id": 15, "name": "SPF 50 Sunscreen", "price": 1300.0, "imageUrl": "https://example.com/spf_50_sunscreen.jpg", "section": "Skin Care", "type": "Sunscreen", "isPopular": false, "discount": 15.0},
+    // Nails products
+    {"id": 16, "name": "Red Nail Polish", "price": 500.0, "imageUrl": "https://example.com/red_nail_polish.jpg", "section": "Nails", "type": "Nail Polish", "isPopular": true, "discount": 10.0},
+    {"id": 17, "name": "Gel Nail Kit", "price": 2500.0, "imageUrl": "https://example.com/gel_nail_kit.jpg", "section": "Nails", "type": "Nail Gel", "isPopular": false, "discount": 5.0},
+    {"id": 18, "name": "Floral Nail Stickers", "price": 400.0, "imageUrl": "https://example.com/floral_nail_stickers.jpg", "section": "Nails", "type": "Nail Stickers", "isPopular": true, "discount": 0.0},
+    {"id": 19, "name": "Glitter Nail Polish", "price": 600.0, "imageUrl": "https://example.com/glitter_nail_polish.jpg", "section": "Nails", "type": "Nail Polish", "isPopular": false, "discount": 15.0},
+    {"id": 20, "name": "UV Gel Top Coat", "price": 1800.0, "imageUrl": "https://example.com/uv_gel_top_coat.jpg", "section": "Nails", "type": "Nail Gel", "isPopular": true, "discount": 10.0},
+  ];
+
   // Search controller
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -59,8 +83,6 @@ class _BeautyScreenState extends State<MakeUpScreen> with TickerProviderStateMix
 
   // Animation controllers
   late AnimationController _gradientAnimationController;
-  late Animation<Color?> _colorAnimation1;
-  late Animation<Color?> _colorAnimation2;
   late AnimationController _fabAnimationController;
   late Animation<double> _fabScaleAnimation;
 
@@ -76,14 +98,6 @@ class _BeautyScreenState extends State<MakeUpScreen> with TickerProviderStateMix
       duration: const Duration(seconds: 8),
       vsync: this,
     )..repeat(reverse: true);
-    _colorAnimation1 = ColorTween(
-      begin: const Color(0xFFd81b60),
-      end: const Color(0xFF8e24aa),
-    ).animate(_gradientAnimationController);
-    _colorAnimation2 = ColorTween(
-      begin: const Color(0xFF8e24aa),
-      end: const Color(0xFFd81b60),
-    ).animate(_gradientAnimationController);
 
     // FAB animation controller
     _fabAnimationController = AnimationController(
@@ -203,13 +217,13 @@ class _BeautyScreenState extends State<MakeUpScreen> with TickerProviderStateMix
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30),
                                 borderSide: BorderSide(
-                                  color: _isSearchFocused ? const Color(0xFFd81b60) : Colors.grey[400]!,
+                                  color: _isSearchFocused ? const Color(0XFF2e4cb6) : Colors.grey[400]!,
                                   width: 2,
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Color(0xFFd81b60), width: 2),
+                                borderSide: const BorderSide(color: Color(0XFF2e4cb6), width: 2),
                               ),
                             ),
                             onChanged: (value) {
@@ -275,16 +289,6 @@ class _BeautyScreenState extends State<MakeUpScreen> with TickerProviderStateMix
       backgroundColor: Colors.white,
       elevation: 0,
       centerTitle: true,
-      actions: [
-        IconButton(
-          icon: const Icon(IconlyLight.filter),
-          color: Colors.black,
-          onPressed: () {
-            _showSortOptions();
-          },
-          tooltip: 'Sort & Filter',
-        ),
-      ],
     );
   }
 
@@ -335,62 +339,59 @@ class _BeautyScreenState extends State<MakeUpScreen> with TickerProviderStateMix
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
       ),
-      child: GestureDetector(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          _showTypeSelection(section);
-        },
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Hero(
-              tag: section,
-              child: Container(
-                height: 437,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  image: DecorationImage(
-                    image: NetworkImage(_categoryImages[section]!),
-                    fit: BoxFit.cover,
-                    opacity: 1.0,
-                    onError: (exception, stackTrace) {
-                      print('Image load error for $section: $exception');
-                    },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Image is now non-interactive
+          Hero(
+            tag: section,
+            child: Container(
+              height: 437,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                image: DecorationImage(
+                  image: NetworkImage(_categoryImages[section]!),
+                  fit: BoxFit.cover,
+                  opacity: 1.0,
+                  onError: (exception, stackTrace) {
+                    print('Image load error for $section: $exception');
+                  },
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
+                ],
               ),
             ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: () {
-                _showCategoryButtonOptions(section);
-              },
-              child: Text(
-                section,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFd81b60),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                minimumSize: const Size(150, 40),
+          ),
+          const SizedBox(height: 8),
+          // Button handles all interactions
+          ElevatedButton(
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              _showCategoryButtonOptions(section);
+            },
+            child: Text(
+              section,
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
             ),
-          ],
-        ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0XFF2e4cb6),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              minimumSize: const Size(150, 40),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -426,157 +427,8 @@ class _BeautyScreenState extends State<MakeUpScreen> with TickerProviderStateMix
     );
   }
 
-  void _showTypeSelection(String section) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      backgroundColor: Colors.white,
-      transitionAnimationController: AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 400),
-      )..forward(),
-      builder: (_) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.6,
-          maxChildSize: 0.9,
-          minChildSize: 0.4,
-          builder: (_, controller) {
-            return Container(
-              padding: const EdgeInsets.all(16),
-              child: ListView(
-                controller: controller,
-                children: [
-                  Text(
-                    "Select $section Products",
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    height: 10,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: widget.products.where((p) => p['section'] == section).length,
-                      itemBuilder: (context, index) {
-                        final product = widget.products.where((p) => p['section'] == section).toList()[index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.network(
-                              product['imageUrl'] ?? 'https://via.placeholder.com/200',
-                              width: 500,
-                              height: 500,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                print('Image error for product: $error');
-                                return const Icon(Icons.image_not_supported, size: 50);
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: _beautyTypes[section]!.map((type) {
-                      final isSelected = _selectedType[section] == type;
-                      return ChoiceChip(
-                        label: Text(
-                          type,
-                          style: GoogleFonts.poppins(
-                            color: isSelected ? Colors.white : Theme.of(context).textTheme.bodyLarge!.color,
-                          ),
-                        ),
-                        selected: isSelected,
-                        selectedColor: const Color(0xFFd81b60),
-                        backgroundColor: Colors.grey[200],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: BorderSide(
-                            color: isSelected ? Colors.transparent : Colors.grey[300]!,
-                          ),
-                        ),
-                        onSelected: (selected) {
-                          if (selected) {
-                            HapticFeedback.lightImpact();
-                            setState(() {
-                              _selectedType[section] = type;
-                              _saveSelection(section, type);
-                            });
-                            Navigator.pop(context);
-                            _navigateToProducts(section, type);
-                          }
-                        },
-                        avatar: isSelected ? const Icon(Icons.check_circle, color: Colors.white, size: 18) : null,
-                        labelPadding: const EdgeInsets.symmetric(horizontal: 12),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _showSortOptions() {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Sort & Filter",
-                style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              ListTile(
-                title: const Text("Price: Low to High"),
-                onTap: () {
-                  // Implement sorting logic
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: const Text("Price: High to Low"),
-                onTap: () {
-                  // Implement sorting logic
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: const Text("Popularity"),
-                onTap: () {
-                  // Implement sorting logic
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   void _navigateToProducts(String section, String type) {
-    final filteredProducts = widget.products
+    final filteredProducts = _products
         .where((product) => product['section'] == section && product['type'] == type)
         .toList();
     if (filteredProducts.isNotEmpty) {
