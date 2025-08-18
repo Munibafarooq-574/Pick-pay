@@ -46,6 +46,31 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void saveCheckoutInfo({
+    String? email,
+    String? firstName,
+    String? lastName,
+    String? address,
+    String? landmark,
+    String? city,
+    String? postalCode,
+    String? phone,
+    String? country,
+  }) {
+    if (_user == null) return;
+    if (email != null) _user!.email = email;
+    _user!.firstName = firstName ?? _user!.firstName;
+    _user!.lastName = lastName ?? _user!.lastName;
+    _user!.address = address ?? _user!.address;
+    _user!.landmark = landmark ?? _user!.landmark;
+    _user!.city = city ?? _user!.city;
+    _user!.postalCode = postalCode ?? _user!.postalCode;
+    _user!.phone = phone ?? _user!.phone;
+    _user!.country = country ?? _user!.country;
+
+    notifyListeners();
+  }
+
   /// Clear user data on logout
   void clearUser() {
     _user = null;
