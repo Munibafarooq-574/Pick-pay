@@ -215,6 +215,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
       'price': double.tryParse(price) ?? 0.0,
       'type': type,
       'imageUrl': product['imageUrl'] ?? 'https://example.com/placeholder.jpg',
+      'category': mainCategory, // Added category here
     };
 
     return GestureDetector(
@@ -225,6 +226,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
           'price': double.tryParse(price) ?? 0.0,
           'type': type,
           'imageUrl': product['imageUrl'] ?? 'https://example.com/placeholder.jpg',
+          'category': mainCategory,
         };
         CartManager.instance.addToCart(cartProduct);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -309,6 +311,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Product Name
                     Text(
                       name,
                       maxLines: 1,
@@ -320,14 +323,28 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
                       ),
                     ),
                     const SizedBox(height: 4),
+
+                    // Product Section / Category
                     Text(
-                      type,
+                      'Section: $mainCategory',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.grey[600]
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+
+                    // Product Type
+                    Text(
+                      'Type: $type',
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         color: Colors.grey[600],
                       ),
                     ),
                     const SizedBox(height: 8),
+
+                    // Price & Add to Cart button
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -346,6 +363,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
                               'price': double.tryParse(price) ?? 0.0,
                               'type': type,
                               'imageUrl': product['imageUrl'] ?? 'https://example.com/placeholder.jpg',
+                              'category': mainCategory,
                             };
                             CartManager.instance.addToCart(cartProduct);
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -372,6 +390,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
       ),
     );
   }
+
 
 
   void _showSortOptions() {

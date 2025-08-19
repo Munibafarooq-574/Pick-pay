@@ -145,6 +145,7 @@ class WishlistScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
+
                   // Product Details
                   Expanded(
                     child: Padding(
@@ -152,25 +153,41 @@ class WishlistScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Product Name
                           Text(
                             product['name'] ?? "Unnamed Product",
                             style: GoogleFonts.poppins(
                                 fontSize: 16, fontWeight: FontWeight.w600),
                           ),
                           const SizedBox(height: 6),
+
+                          // Product Price
                           Text(
-                            "Rs. ${product['price']}",
+                            "Rs. ${product['price'] ?? '0'}",
                             style: GoogleFonts.poppins(
                                 fontSize: 14, color: Colors.green.shade700),
                           ),
                           const SizedBox(height: 6),
+
+                          // Product Section / Category
+                          if (product['category'] != null)
+                            Text(
+                              "Section: ${product['category']}",
+                              style: GoogleFonts.poppins(
+                                  fontSize: 12, color: Colors.grey[600]),
+                            ),
+                          const SizedBox(height: 4),
+
+                          // Product Type
                           if (product['type'] != null)
                             Text(
-                              product['type'],
+                              "Type: ${product['type']}",
                               style: GoogleFonts.poppins(
-                                  fontSize: 12, color: Colors.blueAccent),
+                                  fontSize: 12, color: Colors.grey[600]),
                             ),
-                        ],
+
+                          const SizedBox(height: 10),
+          ],
                       ),
                     ),
                   ),
@@ -183,22 +200,17 @@ class WishlistScreen extends StatelessWidget {
                         CartManager.instance.addToCart(product);
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => const CartScreen()),
+                          MaterialPageRoute(builder: (context) => const CartScreen()),
                         );
                       },
                       child: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Colors.blueAccent, Colors.lightBlue],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
+                          color: const Color(0xFF2e4cb6), // Changed here
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.blueAccent.withOpacity(0.3),
+                              color: const Color(0xFF2e4cb6).withOpacity(0.3), // matching shadow
                               blurRadius: 6,
                               offset: const Offset(0, 3),
                             )
@@ -208,6 +220,7 @@ class WishlistScreen extends StatelessWidget {
                       ),
                     ),
                   )
+
                 ],
               ),
             ),
