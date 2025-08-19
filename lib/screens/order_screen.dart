@@ -237,10 +237,8 @@ class _OrderScreenState extends State<OrderScreen> {
                           MaterialPageRoute(
                             builder: (_) => OrderDetailsScreen(
                               items: items,
-                              date: order['date'] ??
-                                  DateTime.now().toIso8601String(),
-                              address:
-                              order['address'] ?? "Unknown address",
+                              date: order['date'] ?? DateTime.now().toIso8601String(),
+                              address: order['address'] ?? "Unknown address",
                               orderId: order['id'] ?? 'Unknown',
                             ),
                           ),

@@ -39,8 +39,10 @@ class _PaymentSuccessfulScreenState extends State<PaymentSuccessfulScreen> {
       'status': 'completed',
       'date': DateTime.now().toIso8601String(),
       'address': userProvider.user?.address ?? widget.addressDetails['addressLine1'] ?? "Unknown address",
+      'latitude': widget.addressDetails['latitude'],   // ✅ save lat
+      'longitude': widget.addressDetails['longitude'], // ✅ save lng
       'name': userProvider.user?.username ?? "Unknown User",
-      'email': userProvider.user?.email ?? 'unknown', // <-- change here
+      'email': userProvider.user?.email ?? 'unknown',
     });
   }
 
