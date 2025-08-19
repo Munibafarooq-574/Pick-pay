@@ -6,8 +6,8 @@ import 'package:flutter/services.dart'; // For haptic feedback
 import 'package:google_fonts/google_fonts.dart'; // For modern typography
 import 'package:flutter_iconly/flutter_iconly.dart'; // For custom icons
 import 'package:pick_pay/screens/product_list_screen.dart';
+import 'package:pick_pay/screens/wishlist_screen.dart'; // Import WishlistScreen
 import 'package:shared_preferences/shared_preferences.dart'; // For persistent state
-// For shimmer effect
 
 class AccessoriesScreen extends StatefulWidget {
   final List<Map<String, dynamic>> products;
@@ -31,8 +31,6 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
     "Bags": ["Handbags", "Backpacks", "Clutches", "Totes"],
     "Watches": ["Analog", "Digital", "Smart Watches", "Luxury"],
   };
-
-  // Icons for sections (nullable IconData to allow null)
 
   // Category-specific background images
   final Map<String, String> _categoryImages = {
@@ -255,13 +253,13 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30),
                                 borderSide: BorderSide(
-                                  color: _isSearchFocused ? const Color(0XFF2e4cb6): Colors.grey[400]!,
+                                  color: _isSearchFocused ? const Color(0xFF2e4cb6) : Colors.grey[400]!,
                                   width: 2,
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Color(0XFF2e4cb6), width: 2),
+                                borderSide: const BorderSide(color: Color(0xFF2e4cb6), width: 2),
                               ),
                             ),
                             onChanged: (value) {
@@ -327,7 +325,20 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
       backgroundColor: Colors.white,
       elevation: 0,
       centerTitle: true,
-
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.favorite_border, color: Colors.black),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const WishlistScreen(category: 'Accessories'),
+              ),
+            );
+          },
+          tooltip: 'Wishlist',
+        ),
+      ],
     );
   }
 
@@ -425,7 +436,7 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
               ),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0XFF2e4cb6),
+              backgroundColor: const Color(0xFF2e4cb6),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -502,7 +513,7 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
                   ),
                   const SizedBox(height: 12),
                   SizedBox(
-                    height: 10,
+                    height: 100, // Adjusted height for better visibility
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: _products.where((p) => p['section'] == section).length,
@@ -514,8 +525,8 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
                             borderRadius: BorderRadius.circular(10),
                             child: Image.network(
                               product['imageUrl'] ?? 'https://via.placeholder.com/200',
-                              width: 500,
-                              height: 500,
+                              width: 100, // Adjusted width
+                              height: 100, // Adjusted height
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 if (kDebugMode) {
@@ -627,7 +638,10 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => ProductListScreen(products: filteredProducts),
+          builder: (_) => ProductListScreen(
+            products: filteredProducts,
+            mainCategory: 'Accessories', // Pass the main category
+          ),
         ),
       );
     } else {

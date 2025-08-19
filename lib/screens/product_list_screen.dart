@@ -1,27 +1,30 @@
-// ignore_for_file: deprecated_member_use, unnecessary_import
+// screens/product_list_screen.dart
+// ignore_for_file: unused_local_variable
 
-import 'dart:ui'; // For BackdropFilter
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // For haptic feedback
-import 'package:google_fonts/google_fonts.dart'; // For modern typography
-import 'package:flutter_iconly/flutter_iconly.dart'; // For custom icons
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../manager/cart_manager.dart'; // For efficient image loading
+import '../manager/cart_manager.dart';
+import '../manager/wishlist_manager.dart';
 
 class ProductListScreen extends StatefulWidget {
   final List<Map<String, dynamic>> products;
+  final String mainCategory; // ✅ New field
 
-  const ProductListScreen({super.key, required this.products});
+  const ProductListScreen({super.key, required this.products, required this.mainCategory});
 
   @override
   State<ProductListScreen> createState() => _ProductListScreenState();
 }
 
+
 class _ProductListScreenState extends State<ProductListScreen> with SingleTickerProviderStateMixin {
   late List<Map<String, dynamic>> _displayedProducts;
   bool _isLoading = true;
-  String _sortOption = 'Popularity'; // Default sort option
-  bool _isHeld = false; // Track hold state
+  String _sortOption = 'Popularity';
+  bool _isHeld = false;
   late AnimationController _animationController;
   late Animation<Color?> _colorAnimation1;
   late Animation<Color?> _colorAnimation2;
@@ -29,7 +32,6 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
   @override
   void initState() {
     super.initState();
-    // Simulate loading for initial display
     Future.delayed(const Duration(milliseconds: 1000), () {
       if (mounted) {
         setState(() {
@@ -59,7 +61,6 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
     super.dispose();
   }
 
-  // Sort products based on selected option
   void _sortProducts(String option) {
     setState(() {
       _sortOption = option;
@@ -79,8 +80,6 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
     return GestureDetector(
       onLongPress: () {
         setState(() {
@@ -107,19 +106,17 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
                   end: Alignment.bottomRight,
                 ),
               )
-                  : BoxDecoration(
-                color: isDarkMode ? Colors.grey[900] : Colors.white,
+                  : const BoxDecoration(
+                color: Colors.white, // Removed dark mode support
               ),
               child: SafeArea(
                 child: Column(
                   children: [
-                    // App bar
-                    _buildAppBar(isDarkMode),
-                    // Product grid
+                    _buildAppBar(),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(16),
-                        child: _isLoading ? _buildShimmerGrid() : _buildProductGrid(isDarkMode),
+                        child: _isLoading ? _buildShimmerGrid() : _buildProductGrid(),
                       ),
                     ),
                   ],
@@ -132,14 +129,14 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
     );
   }
 
-  Widget _buildAppBar(bool isDarkMode) {
+  Widget _buildAppBar() {
     return AppBar(
       title: Text(
         "Products",
         style: GoogleFonts.poppins(
           fontWeight: FontWeight.bold,
           fontSize: 24,
-          color: isDarkMode ? Colors.white70 : Colors.black87,
+          color: Colors.black87,
         ),
       ),
       backgroundColor: Colors.transparent,
@@ -147,13 +144,13 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
       actions: [
         IconButton(
           icon: const Icon(IconlyLight.filter),
-          color: isDarkMode ? Colors.white70 : Colors.black87,
+          color: Colors.black87,
           onPressed: _showSortOptions,
           tooltip: 'Sort & Filter',
         ),
         IconButton(
           icon: const Icon(Icons.refresh),
-          color: isDarkMode ? Colors.white70 : Colors.black87,
+          color: Colors.black87,
           onPressed: () {
             HapticFeedback.lightImpact();
             setState(() {
@@ -192,7 +189,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
     );
   }
 
-  Widget _buildProductGrid(bool isDarkMode) {
+  Widget _buildProductGrid() {
     return GridView.count(
       crossAxisCount: 2,
       crossAxisSpacing: 16,
@@ -201,26 +198,32 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
       children: _displayedProducts.asMap().entries.map((entry) {
         final index = entry.key;
         final product = entry.value;
-        return _buildProductCard(product, index, isDarkMode);
+        return _buildProductCard(product, index, widget.mainCategory);
       }).toList(),
     );
   }
 
-  Widget _buildProductCard(Map<String, dynamic> product, int index, bool isDarkMode) {
+  Widget _buildProductCard(Map<String, dynamic> product, int index, String mainCategory) {
     final isPopular = product['isPopular'] == true;
     final discount = product['discount'] as double? ?? 0.0;
     final name = product['name'] ?? 'Product Name';
     final price = (product['price'] as num?)?.toDouble().toStringAsFixed(2) ?? '0.00';
-    final category = product['type'] ?? 'Unknown';
+    final type = product['type'] ?? 'Unknown';
+
+    final wishlistProduct = {
+      'name': name,
+      'price': double.tryParse(price) ?? 0.0,
+      'type': type,
+      'imageUrl': product['imageUrl'] ?? 'https://example.com/placeholder.jpg',
+    };
 
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
-        // Create a structured product map for the cart
         final cartProduct = {
           'name': name,
           'price': double.tryParse(price) ?? 0.0,
-          'type': category,
+          'type': type,
           'imageUrl': product['imageUrl'] ?? 'https://example.com/placeholder.jpg',
         };
         CartManager.instance.addToCart(cartProduct);
@@ -232,11 +235,11 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
         tag: 'product_$index',
         child: Container(
           decoration: BoxDecoration(
-            color: isDarkMode ? Colors.grey[800] : Colors.white,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
-                color: isDarkMode ? Colors.black26 : Colors.black12,
+                color: Colors.black12,
                 blurRadius: 6,
                 offset: const Offset(0, 4),
               ),
@@ -251,7 +254,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
                     height: 130,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: isDarkMode ? Colors.grey[600] : Colors.grey[200],
+                      color: Colors.grey[200],
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
                     ),
                     child: ClipRRect(
@@ -260,31 +263,23 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
                         imageUrl: product['imageUrl'] ?? 'https://example.com/placeholder.jpg',
                         fit: BoxFit.cover,
                         width: double.infinity,
-                        errorWidget: (context, url, error) => const Icon(Icons.image_not_supported, size: 60, color: Colors.grey),
+                        errorWidget: (context, url, error) =>
+                        const Icon(Icons.image_not_supported, size: 60, color: Colors.grey),
                       ),
                     ),
                   ),
+                  // Wishlist button
                   Positioned(
                     right: 8,
                     top: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: isDarkMode ? Colors.grey[700] : Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: isDarkMode ? Colors.black26 : Colors.black12,
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.favorite_border,
-                        color: isPopular ? Colors.red : Colors.grey,
-                        size: 18,
-                      ),
+                    child: GestureDetector(
+                      onTap: () {
+                        WishlistManager.instance.addToWishlist(mainCategory, wishlistProduct);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('$name added to wishlist')),
+                        );
+                      },
+                      child: const Icon(Icons.favorite_border, color: Colors.red, size: 18),
                     ),
                   ),
                   if (discount > 0)
@@ -321,15 +316,15 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: isDarkMode ? Colors.white70 : Colors.black87,
+                        color: Colors.black87,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      category,
+                      type,
                       style: GoogleFonts.poppins(
                         fontSize: 12,
-                        color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                        color: Colors.grey[600],
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -340,7 +335,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
                           'Rs. $price',
                           style: GoogleFonts.poppins(
                             fontWeight: FontWeight.bold,
-                            color: isDarkMode ? Colors.white70 : const Color(0xFF2e4cb6),
+                            color: const Color(0xFF2e4cb6),
                           ),
                         ),
                         GestureDetector(
@@ -349,7 +344,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
                             final cartProduct = {
                               'name': name,
                               'price': double.tryParse(price) ?? 0.0,
-                              'type': category,
+                              'type': type,
                               'imageUrl': product['imageUrl'] ?? 'https://example.com/placeholder.jpg',
                             };
                             CartManager.instance.addToCart(cartProduct);
@@ -360,7 +355,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: isDarkMode ? Colors.grey[600] : const Color(0xFF2e4cb6),
+                              color: const Color(0xFF2e4cb6),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(Icons.add, color: Colors.white, size: 18),
@@ -377,6 +372,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
       ),
     );
   }
+
 
   void _showSortOptions() {
     showModalBottomSheet(

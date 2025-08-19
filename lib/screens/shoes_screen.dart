@@ -6,8 +6,8 @@ import 'package:flutter/services.dart'; // For haptic feedback
 import 'package:google_fonts/google_fonts.dart'; // For modern typography
 import 'package:flutter_iconly/flutter_iconly.dart'; // For custom icons
 import 'package:pick_pay/screens/product_list_screen.dart';
+import 'package:pick_pay/screens/wishlist_screen.dart'; // Import WishlistScreen
 import 'package:shared_preferences/shared_preferences.dart'; // For persistent state
-// For shimmer effect
 
 class ShoesScreen extends StatefulWidget {
   final List<Map<String, dynamic>> products;
@@ -35,14 +35,12 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
     "Girls": ["Sneakers", "School Shoes", "Sandals"],
   };
 
-  // Icons for sections (nullable IconData to allow null)
-
   // Category-specific background images
   final Map<String, String> _categoryImages = {
     "Women": "https://www.hushpuppies.com.pk/cdn/shop/files/500x615-2.jpg?v=1749803429&width=500",
     "Men": "https://www.hushpuppies.com.pk/cdn/shop/files/500x615-1.jpg?v=1749803429&width=500",
     "Boys": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTH0yohNGGPlArWGqO32aIDEoS3KT6AJL_V7w&s",
-    "Girls": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMLM2SWahLkFxALgYrO19p43aD1q3UeQAhvBJXLit5k1TQKs23L65N-zTrI1Kx6W8jkm0&usqp=CAU",
+    "Girls": "https://encrypted-tbn0.gstatic.com/images?q=tbn9GcRMLM2SWahLkFxALgYrO19p43aD1q3UeQAhvBJXLit5k1TQKs23L65N-zTrI1Kx6W8jkm0&usqp=CAU",
   };
 
   // List of products
@@ -312,7 +310,20 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
       backgroundColor: Colors.white,
       elevation: 0,
       centerTitle: true,
-
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.favorite_border, color: Colors.black),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const WishlistScreen(category: 'Shoes'),
+                ),
+            );
+          },
+          tooltip: 'Wishlist',
+        ),
+      ],
     );
   }
 
@@ -453,8 +464,6 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
     );
   }
 
-
-
   void _navigateToProducts(String section, String type) {
     final filteredProducts = _products
         .where((product) => product['section'] == section && product['type'] == type)
@@ -463,7 +472,10 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => ProductListScreen(products: filteredProducts),
+          builder: (_) => ProductListScreen(
+            products: filteredProducts,
+            mainCategory: 'Shoes', // ✅ Pass the main category
+          ),
         ),
       );
     } else {

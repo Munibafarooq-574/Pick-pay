@@ -1,4 +1,5 @@
-// ignore_for_file: deprecated_member_use, sort_child_properties_last
+// screens/clothing_screen.dart
+// ignore_for_file: sort_child_properties_last, deprecated_member_use
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:pick_pay/screens/product_list_screen.dart';
+import 'package:pick_pay/screens/wishlist_screen.dart'; // Import WishlistScreen
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ClothingScreen extends StatefulWidget {
@@ -115,7 +117,6 @@ class _ClothingScreenState extends State<ClothingScreen> with TickerProviderStat
     "Girls": ["Dresses", "Tops", "Skirts"],
   };
 
-  // Category-specific background images (with fallback asset)
   final Map<String, String> _categoryImages = {
     "Women": "https://rangreza.net/cdn/shop/files/Ready-to-Wear-2Pc-Dress-Batik-Ba01912-Rangreza-6286.webp?v=1711008946&width=1080",
     "Men": "https://avocado.pk/cdn/shop/products/2_ab1f0b9f-44fc-4644-9107-27b3a09eab51.jpg",
@@ -336,7 +337,21 @@ class _ClothingScreenState extends State<ClothingScreen> with TickerProviderStat
       backgroundColor: Colors.white,
       elevation: 0,
       centerTitle: true,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.favorite_border, color: Colors.black),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const WishlistScreen(category: 'Clothing'),
+              ),
+            );
 
+          },
+          tooltip: 'Wishlist',
+        ),
+      ],
     );
   }
 
@@ -390,7 +405,6 @@ class _ClothingScreenState extends State<ClothingScreen> with TickerProviderStat
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Image is now non-interactive
           Container(
             height: 437,
             width: double.infinity,
@@ -416,7 +430,6 @@ class _ClothingScreenState extends State<ClothingScreen> with TickerProviderStat
             ),
           ),
           const SizedBox(height: 8),
-          // Button handles all interactions
           ElevatedButton(
             onPressed: () {
               HapticFeedback.lightImpact();
@@ -474,7 +487,6 @@ class _ClothingScreenState extends State<ClothingScreen> with TickerProviderStat
     );
   }
 
-
   void _navigateToProducts(String section, String type) {
     final filteredProducts = _products
         .where((product) =>
@@ -486,7 +498,10 @@ class _ClothingScreenState extends State<ClothingScreen> with TickerProviderStat
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => ProductListScreen(products: filteredProducts),
+          builder: (_) => ProductListScreen(
+            products: filteredProducts,
+            mainCategory: 'Clothing', // ✅ Pass the main category
+          ),
         ),
       );
     } else {
@@ -495,4 +510,6 @@ class _ClothingScreenState extends State<ClothingScreen> with TickerProviderStat
       );
     }
   }
+
+
 }

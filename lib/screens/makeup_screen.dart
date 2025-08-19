@@ -6,8 +6,8 @@ import 'package:flutter/services.dart'; // For haptic feedback
 import 'package:google_fonts/google_fonts.dart'; // For modern typography
 import 'package:flutter_iconly/flutter_iconly.dart'; // For custom icons
 import 'package:pick_pay/screens/product_list_screen.dart';
+import 'package:pick_pay/screens/wishlist_screen.dart'; // Import WishlistScreen
 import 'package:shared_preferences/shared_preferences.dart'; // For persistent state
-// For shimmer effect
 
 class MakeUpScreen extends StatefulWidget {
   final List<Map<String, dynamic>> products;
@@ -35,8 +35,6 @@ class _BeautyScreenState extends State<MakeUpScreen> with TickerProviderStateMix
     "Skin Care": ["Cleanser", "Moisturizer", "Serum", "Sunscreen"],
     "Nails": ["Nail Polish", "Nail Gel", "Nail Stickers"],
   };
-
-  // Icons for sections (nullable IconData to allow null)
 
   // Category-specific background images
   final Map<String, String> _categoryImages = {
@@ -217,13 +215,13 @@ class _BeautyScreenState extends State<MakeUpScreen> with TickerProviderStateMix
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30),
                                 borderSide: BorderSide(
-                                  color: _isSearchFocused ? const Color(0XFF2e4cb6) : Colors.grey[400]!,
+                                  color: _isSearchFocused ? const Color(0xFF2e4cb6) : Colors.grey[400]!,
                                   width: 2,
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Color(0XFF2e4cb6), width: 2),
+                                borderSide: const BorderSide(color: Color(0xFF2e4cb6), width: 2),
                               ),
                             ),
                             onChanged: (value) {
@@ -289,6 +287,20 @@ class _BeautyScreenState extends State<MakeUpScreen> with TickerProviderStateMix
       backgroundColor: Colors.white,
       elevation: 0,
       centerTitle: true,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.favorite_border, color: Colors.black),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const WishlistScreen(category: 'Makeup'),
+              ),
+            );
+          },
+          tooltip: 'Wishlist',
+        ),
+      ],
     );
   }
 
@@ -384,7 +396,7 @@ class _BeautyScreenState extends State<MakeUpScreen> with TickerProviderStateMix
               ),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0XFF2e4cb6),
+              backgroundColor: const Color(0xFF2e4cb6),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -435,7 +447,10 @@ class _BeautyScreenState extends State<MakeUpScreen> with TickerProviderStateMix
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => ProductListScreen(products: filteredProducts),
+          builder: (_) => ProductListScreen(
+            products: filteredProducts,
+            mainCategory: 'beauty', // Pass the main category
+          ),
         ),
       );
     } else {
