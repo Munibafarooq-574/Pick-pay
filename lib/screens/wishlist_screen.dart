@@ -16,17 +16,18 @@ class WishlistScreen extends StatelessWidget {
     final wishlist = WishlistManager.instance.getWishlist(category);
 
     return Scaffold(
+      backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         title: Text(
           "$category Wishlist ❤️",
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: Colors.black,
+            fontSize: 22,
+            color: Colors.black87,
           ),
         ),
         backgroundColor: Colors.white,
-        elevation: 1,
+        elevation: 2,
         centerTitle: true,
       ),
       body: wishlist.isEmpty
@@ -35,18 +36,26 @@ class WishlistScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.favorite_border,
-                size: 60, color: Colors.grey.shade400),
-            const SizedBox(height: 12),
+                size: 80, color: Colors.grey.shade400),
+            const SizedBox(height: 16),
             Text(
-              "No items in Wishlist",
+              "Your Wishlist is Empty!",
               style: GoogleFonts.poppins(
-                  fontSize: 16, color: Colors.grey.shade600),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Start adding your favorite products now.",
+              style: GoogleFonts.poppins(
+                  fontSize: 14, color: Colors.grey.shade500),
             ),
           ],
         ),
       )
           : ListView.builder(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         itemCount: wishlist.length,
         itemBuilder: (context, index) {
           final product = wishlist[index];
@@ -59,9 +68,9 @@ class WishlistScreen extends StatelessWidget {
                 builder: (ctx) => AlertDialog(
                   title: Text("Remove Item",
                       style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.normal)),
+                          fontWeight: FontWeight.w600)),
                   content: Text(
-                    "Are you sure you want to remove this product from wishlist?",
+                    "Are you sure you want to remove this product from your wishlist?",
                     style: GoogleFonts.poppins(fontSize: 14),
                   ),
                   actions: [
@@ -83,89 +92,123 @@ class WishlistScreen extends StatelessWidget {
               );
             },
             onDismissed: (_) {
-              WishlistManager.instance
-                  .removeFromWishlist(category, product);
+              WishlistManager.instance.removeFromWishlist(category, product);
               (context as Element).markNeedsBuild();
             },
             background: Container(
+              margin: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.redAccent,
                 borderRadius: BorderRadius.circular(16),
               ),
               alignment: Alignment.centerRight,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: const Icon(Icons.delete, color: Colors.white, size: 28),
             ),
-            child: Card(
-              margin: const EdgeInsets.only(bottom: 12),
-              elevation: 3,
-              shape: RoundedRectangleBorder(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.shade300,
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: ListTile(
-                contentPadding: const EdgeInsets.all(12),
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: CachedNetworkImage(
-                    imageUrl: product['imageUrl'] ?? "",
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      color: Colors.grey.shade200,
-                      width: 60,
-                      height: 60,
-                      child: const Icon(Icons.image, color: Colors.grey),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey.shade200,
-                      width: 60,
-                      height: 60,
-                      child: const Icon(Icons.broken_image, color: Colors.grey),
-                    ),
-                  ),
-                ),
-                title: Text(
-                  product['name'] ?? "Unnamed",
-                  style: GoogleFonts.poppins(
-                      fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Rs. ${product['price']}",
-                      style: GoogleFonts.poppins(
-                          fontSize: 14, color: Colors.green.shade700),
-                    ),
-                    const SizedBox(height: 4),
-                    if (product['type'] != null)
-                      Chip(
-                        label: Text(
-                          product['type'],
-                          style: GoogleFonts.poppins(
-                              fontSize: 12, color: Colors.white),
-                        ),
-                        backgroundColor: Colors.blueAccent,
-                        padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Row(
+                children: [
+                  // Product Image
+                  ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        bottomLeft: Radius.circular(16)),
+                    child: CachedNetworkImage(
+                      imageUrl: product['imageUrl'] ?? "",
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: Colors.grey.shade200,
+                        child: const Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            )),
                       ),
-                  ],
-                ),
-                trailing: InkWell(
-                  onTap: () {
-                    CartManager.instance.addToCart(product);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const CartScreen()),
-                    );
-                  },
-                  child: CircleAvatar(
-                    radius: 18,
-                    backgroundColor: Colors.blueAccent,
-                    child: const Icon(Icons.add, color: Colors.white, size: 20),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey.shade200,
+                        child: const Icon(Icons.broken_image, color: Colors.grey),
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 12),
+                  // Product Details
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            product['name'] ?? "Unnamed Product",
+                            style: GoogleFonts.poppins(
+                                fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            "Rs. ${product['price']}",
+                            style: GoogleFonts.poppins(
+                                fontSize: 14, color: Colors.green.shade700),
+                          ),
+                          const SizedBox(height: 6),
+                          if (product['type'] != null)
+                            Text(
+                              product['type'],
+                              style: GoogleFonts.poppins(
+                                  fontSize: 12, color: Colors.blueAccent),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Add to Cart Button
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: GestureDetector(
+                      onTap: () {
+                        CartManager.instance.addToCart(product);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const CartScreen()),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Colors.blueAccent, Colors.lightBlue],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.blueAccent.withOpacity(0.3),
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
+                            )
+                          ],
+                        ),
+                        child: const Icon(Icons.add, color: Colors.white, size: 22),
+                      ),
+                    ),
+                  )
+                ],
               ),
             ),
           );
