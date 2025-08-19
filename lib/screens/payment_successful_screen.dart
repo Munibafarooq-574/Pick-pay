@@ -43,6 +43,9 @@ class _PaymentSuccessfulScreenState extends State<PaymentSuccessfulScreen> {
       'longitude': widget.addressDetails['longitude'], // ✅ save lng
       'name': userProvider.user?.username ?? "Unknown User",
       'email': userProvider.user?.email ?? 'unknown',
+      'shippingMethod': widget.shippingMethod,
+      'shippingCost': (widget.addressDetails['shippingCost'] ?? 0.0).toDouble(),
+      'paymentMethod': widget.paymentMethod,
     });
   }
 

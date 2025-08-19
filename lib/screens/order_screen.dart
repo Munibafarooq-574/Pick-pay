@@ -240,6 +240,9 @@ class _OrderScreenState extends State<OrderScreen> {
                               date: order['date'] ?? DateTime.now().toIso8601String(),
                               address: order['address'] ?? "Unknown address",
                               orderId: order['id'] ?? 'Unknown',
+                              shippingMethod: order['shippingMethod'] ?? "Standard Delivery",
+                              shippingCost: (order['shippingCost'] ?? 0.0).toDouble(),
+                              paymentMethod: order['paymentMethod'] ?? "Cash on Delivery", // ✅ pass payment method
                             ),
                           ),
                         );
