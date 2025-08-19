@@ -1,4 +1,8 @@
-// ignore_for_file: unused_local_variable, deprecated_member_use, use_build_context_synchronously, library_private_types_in_public_api
+
+
+// ignore_for_file: unnecessary_cast, unused_local_variable, library_private_types_in_public_api, use_build_context_synchronously, deprecated_member_use
+
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -39,14 +43,50 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         // Simulate authentication (replace with actual API call)
         await Future.delayed(const Duration(seconds: 1)); // Mock delay
+
+        // 🔹 Assume you get backendUser from your API response
+        final backendUser = {
+          'username': _emailController.text.split('@')[0], // Example
+          'email': _emailController.text.trim(),
+          'profileImagePath': null, // Example, use actual path if exists
+          'firstName': 'Muniba',
+          'lastName': 'Farooq',
+          'address': 'house 139 block A multi garden B17',
+          'landmark': 'Near Park',
+          'city': 'Islamabad',
+          'postalCode': '74400',
+          'phone': '03001234567',
+          'country': 'Pakistan',
+        };
+
         final userProvider = Provider.of<UserProvider>(context, listen: false);
-        userProvider.setUser(
-          username: _emailController.text.split('@')[0], // Simple username derivation
-          email: _emailController.text.trim(),
-          profileImage: null, // Add image logic if needed
+
+        // 1️⃣ Set main user info
+        await userProvider.setUser(
+          username: backendUser['username'] as String? ?? '',
+          email: backendUser['email'] as String? ?? '',
+          profileImage: backendUser['profileImagePath'] != null
+              ? File(backendUser['profileImagePath'] as String)
+              : null,
         );
+
+        // 2️⃣ Save checkout/additional info
+        await userProvider.saveCheckoutInfo(
+          firstName: backendUser['firstName'],
+          lastName: backendUser['lastName'],
+          address: backendUser['address'],
+          landmark: backendUser['landmark'],
+          city: backendUser['city'],
+          postalCode: backendUser['postalCode'],
+          phone: backendUser['phone'],
+          country: backendUser['country'],
+        );
+
+        // 3️⃣ Save userId in PreferencesProvider
         final preferencesProvider = Provider.of<PreferencesProvider>(context, listen: false);
-        preferencesProvider.userId = userProvider.user!.email; // Use email as userId for simplicity
+        preferencesProvider.userId = userProvider.user!.email;
+
+        // 4️⃣ Navigate to HomeScreen
         if (mounted) {
           Navigator.pushReplacement(
             context,
@@ -60,9 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         }
       } finally {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
+        if (mounted) setState(() => _isLoading = false);
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -70,6 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable, unnecessary_null_comparison, deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pick_pay/screens/payment_successful_screen.dart';
@@ -99,7 +101,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     if (shouldAutofill == true) {
       setState(() {
-        emailController.text = user.email ?? '';
+        emailController.text = user.email;
         firstNameController.text = user.firstName ?? '';
         lastNameController.text = user.lastName ?? '';
         addressController.text = user.address ?? '';
@@ -398,7 +400,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           // ---------- DELIVERY ADDRESS
                           _sectionTitle("Delivery Address"),
                           DropdownButtonFormField<String>(
-                            value: selectedCountry,
+                            value: countries.contains(selectedCountry) ? selectedCountry : null,
                             hint: const Text('Select Country'),
                             items: countries
                                 .map((country) => DropdownMenuItem<String>(
@@ -406,7 +408,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               child: Text(country),
                             ))
                                 .toList(),
-                            onChanged: (value) => setState(() => selectedCountry = value),
+                            onChanged: (value) => setState(() => selectedCountry = value ?? ''),
                             decoration: _decoration('Country'),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -416,6 +418,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             },
                           ),
                           const SizedBox(height: 12),
+
 
                           _requiredField(
                             controller: firstNameController,

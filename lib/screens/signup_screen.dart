@@ -16,7 +16,6 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -24,7 +23,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-
   String _passwordStrength = '';
   Color _strengthColor = Colors.red;
   bool _isPasswordStrong = false;
@@ -78,13 +76,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() => _isLoading = true);
       try {
         // Simulate authentication (replace with actual API call)
-        await Future.delayed(const Duration(seconds: 1)); // Mock delay
         final userProvider = Provider.of<UserProvider>(context, listen: false);
-        userProvider.setUser(
-          username: _nameController.text.trim(), // Use full name as username
+
+        // 1️⃣ Set main user info
+        await userProvider.setUser(
+          username: _nameController.text.trim(), // Full Name as username
           email: _emailController.text.trim(),
-          profileImage: null, // Add image logic if needed
+          profileImage: null, // Add your image picker if needed
         );
+
+        // 2️⃣ Save checkout/additional info
+        await userProvider.saveCheckoutInfo(
+          firstName: _nameController.text.trim(), // You can split first/last name if needed
+          lastName: '', // Or get from another field if you have separate last name input
+          address: '', // Add TextController for address if you have it
+          landmark: '',
+          city: '',
+          postalCode: '',
+          phone: '',
+          country: '',
+        );
+
         final preferencesProvider = Provider.of<PreferencesProvider>(context, listen: false);
         preferencesProvider.userId = userProvider.user!.email; // Use email as userId
         if (mounted) {

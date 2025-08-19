@@ -179,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 offset: const Offset(0, 3))
                           ],
                         ),
-                        child: const Icon(Icons.notifications_none,
+                        child: const Icon(Icons.favorite_border,
                             color: Color(0xFF2e4cb6)),
                       ),
                       const SizedBox(width: 12),
