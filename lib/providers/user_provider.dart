@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert'; // for json encode/decode
 import '../models/user.dart';
 
 class UserProvider with ChangeNotifier {
@@ -9,6 +10,41 @@ class UserProvider with ChangeNotifier {
   User? get user => _user;
   bool get isLoggedIn => _user != null;
 
+  // ---------- Orders ----------
+  List<Map<String, dynamic>> _orders = [];
+  List<Map<String, dynamic>> get orders => _orders;
+
+  void addOrder(Map<String, dynamic> order) {
+    // Ensure items is always a list
+    final fixedOrder = {
+      ...order,
+      'items': (order['items'] is List)
+          ? order['items']
+          : <Map<String, dynamic>>[],
+    };
+
+    _orders.add(fixedOrder);
+    notifyListeners();
+    _saveOrdersToPrefs();
+  }
+
+  Future<void> _saveOrdersToPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString("orders", jsonEncode(_orders));
+  }
+
+  Future<void> _loadOrdersFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.containsKey("orders")) {
+      final data = prefs.getString("orders");
+      if (data != null) {
+        _orders = List<Map<String, dynamic>>.from(jsonDecode(data));
+        notifyListeners();
+      }
+    }
+  }
+
+  // ---------- User Methods ----------
   Future<void> setUser({
     required String username,
     required String email,
@@ -68,13 +104,13 @@ class UserProvider with ChangeNotifier {
 
   Future<void> clearUser() async {
     _user = null;
+    _orders = [];
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
   }
 
   // ---------- SharedPreferences Helpers ----------
-
   Future<void> _saveToPrefs() async {
     if (_user == null) return;
     final prefs = await SharedPreferences.getInstance();
@@ -102,6 +138,16 @@ class UserProvider with ChangeNotifier {
       'phone': prefs.getString('phone'),
       'country': prefs.getString('country'),
     });
+
+    await _loadOrdersFromPrefs(); // ⬅️ Load orders on app start
     notifyListeners();
+  }
+
+  // <<< Add this method
+  void removeOrder(int index) {
+    if (index >= 0 && index < _orders.length) {
+      _orders.removeAt(index);
+      notifyListeners();
+    }
   }
 }

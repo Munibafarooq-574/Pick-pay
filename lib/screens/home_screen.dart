@@ -13,6 +13,7 @@ import 'accessories_screen.dart';
 import 'cart_screen.dart';
 import 'clothing_screen.dart';
 import 'makeup_screen.dart';
+import 'orders_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -167,20 +168,52 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
+                      GestureDetector(
+                        onTap: () {
+                          final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+                          if (userProvider.orders.isNotEmpty) {
+                            final lastOrder = userProvider.orders.last;
+
+                            final items = (lastOrder['items'] is List)
+                                ? List<Map<String, dynamic>>.from(lastOrder['items'])
+                                : <Map<String, dynamic>>[];
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => OrderDetailsScreen(
+                                  items: items,
+                                  date: lastOrder['date'] ?? DateTime.now().toIso8601String(),
+                                  address: lastOrder['address'] ?? "Unknown address",
+                                ),
+                              ),
+                            );
+                          }
+                          else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("No orders available")),
+                            );
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
                                 color: Colors.black12,
                                 blurRadius: 6,
-                                offset: const Offset(0, 3))
-                          ],
+                                offset: const Offset(0, 3),
+                              )
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.receipt_long,
+                            color: Color(0xFF2e4cb6),
+                          ),
                         ),
-                        child: const Icon(Icons.favorite_border,
-                            color: Color(0xFF2e4cb6)),
                       ),
                       const SizedBox(width: 12),
                       CircleAvatar(

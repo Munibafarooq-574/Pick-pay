@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:pick_pay/providers/user_provider.dart';
 import 'package:pick_pay/screens/home_screen.dart';
 
 class PaymentSuccessfulScreen extends StatefulWidget {
@@ -21,6 +23,25 @@ class PaymentSuccessfulScreen extends StatefulWidget {
 
 class _PaymentSuccessfulScreenState extends State<PaymentSuccessfulScreen> {
   bool _backPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _saveOrders();
+  }
+
+  void _saveOrders() {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    for (var product in widget.purchasedProducts) {
+      userProvider.addOrder({
+        'productName': product['name'],
+        'price': product['price'],
+        'quantity': product['quantity'],
+        'date': DateTime.now().toIso8601String(),
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +69,6 @@ class _PaymentSuccessfulScreenState extends State<PaymentSuccessfulScreen> {
       body: SafeArea(
         child: Stack(
           children: [
-            // Scrollable content
             SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
@@ -80,7 +100,8 @@ class _PaymentSuccessfulScreenState extends State<PaymentSuccessfulScreen> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 30),
-                    // Order Summary
+
+                    // ---------- Order Summary ----------
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -157,7 +178,8 @@ class _PaymentSuccessfulScreenState extends State<PaymentSuccessfulScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // Address Details
+
+                    // ---------- Shipping Address ----------
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -194,7 +216,8 @@ class _PaymentSuccessfulScreenState extends State<PaymentSuccessfulScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // Shipping and Payment Details
+
+                    // ---------- Shipping & Payment ----------
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -238,7 +261,8 @@ class _PaymentSuccessfulScreenState extends State<PaymentSuccessfulScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // Local Logo (with fallback)
+
+                    // ---------- Logo ----------
                     SizedBox(
                       height: 180,
                       width: 180,
@@ -254,12 +278,13 @@ class _PaymentSuccessfulScreenState extends State<PaymentSuccessfulScreen> {
                         },
                       ),
                     ),
-                    const SizedBox(height: 100), // Extra space to prevent button overlap
+                    const SizedBox(height: 100),
                   ],
                 ),
               ),
             ),
-            // Fixed Animated Back to Home Button
+
+            // ---------- Back to Home Button ----------
             Positioned(
               bottom: 16,
               left: 16,
