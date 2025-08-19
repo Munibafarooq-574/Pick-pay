@@ -15,18 +15,20 @@ class UserProvider with ChangeNotifier {
   List<Map<String, dynamic>> get orders => _orders;
 
   void addOrder(Map<String, dynamic> order) {
-    // Ensure items is always a list
     final fixedOrder = {
       ...order,
-      'items': (order['items'] is List)
-          ? order['items']
-          : <Map<String, dynamic>>[],
+      'id': '#ORD${DateTime.now().millisecondsSinceEpoch}', // unique ID
+      'items': (order['items'] is List) ? order['items'] : <Map<String, dynamic>>[],
+      'status': 'ongoing', // ✅ default status
+      'date': order['date'] ?? DateTime.now().toIso8601String(),
     };
 
     _orders.add(fixedOrder);
     notifyListeners();
     _saveOrdersToPrefs();
   }
+
+
 
   Future<void> _saveOrdersToPrefs() async {
     final prefs = await SharedPreferences.getInstance();
@@ -143,11 +145,13 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // <<< Add this method
+  // Remove a specific order by index
   void removeOrder(int index) {
     if (index >= 0 && index < _orders.length) {
       _orders.removeAt(index);
       notifyListeners();
+      _saveOrdersToPrefs(); // Don't forget to persist changes
     }
   }
+
 }

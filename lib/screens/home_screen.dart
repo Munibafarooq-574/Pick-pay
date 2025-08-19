@@ -13,7 +13,8 @@ import 'accessories_screen.dart';
 import 'cart_screen.dart';
 import 'clothing_screen.dart';
 import 'makeup_screen.dart';
-import 'orders_screen.dart';
+import 'order_screen.dart';
+import 'orders_information_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -170,31 +171,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          final userProvider = Provider.of<UserProvider>(context, listen: false);
-
-                          if (userProvider.orders.isNotEmpty) {
-                            final lastOrder = userProvider.orders.last;
-
-                            final items = (lastOrder['items'] is List)
-                                ? List<Map<String, dynamic>>.from(lastOrder['items'])
-                                : <Map<String, dynamic>>[];
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => OrderDetailsScreen(
-                                  items: items,
-                                  date: lastOrder['date'] ?? DateTime.now().toIso8601String(),
-                                  address: lastOrder['address'] ?? "Unknown address",
-                                ),
-                              ),
-                            );
-                          }
-                          else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("No orders available")),
-                            );
-                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const OrderScreen()),
+                          );
                         },
                         child: Container(
                           padding: const EdgeInsets.all(8),

@@ -33,14 +33,15 @@ class _PaymentSuccessfulScreenState extends State<PaymentSuccessfulScreen> {
   void _saveOrders() {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
-    for (var product in widget.purchasedProducts) {
-      userProvider.addOrder({
-        'productName': product['name'],
-        'price': product['price'],
-        'quantity': product['quantity'],
-        'date': DateTime.now().toIso8601String(),
-      });
-    }
+    // Add the entire order at once, including all products
+    userProvider.addOrder({
+      'items': widget.purchasedProducts,
+      'status': 'completed',
+      'date': DateTime.now().toIso8601String(),
+      'address': userProvider.user?.address ?? widget.addressDetails['addressLine1'] ?? "Unknown address",
+      'name': userProvider.user?.username ?? "Unknown User",
+      'email': userProvider.user?.email ?? 'unknown', // <-- change here
+    });
   }
 
   @override
