@@ -26,6 +26,7 @@ class OrderDetailsScreen extends StatefulWidget {
   final String shippingMethod;
   final double shippingCost;
   final String paymentMethod;
+  final double discount; // Added discount parameter
 
   const OrderDetailsScreen({
     super.key,
@@ -36,6 +37,7 @@ class OrderDetailsScreen extends StatefulWidget {
     required this.shippingMethod,
     required this.shippingCost,
     required this.paymentMethod,
+    required this.discount, // Added to constructor
   });
 
   @override
@@ -65,22 +67,24 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     final deliveryTime = DateFormat('hh:mm a, MMM d, yyyy').format(parsedDate);
     final items = widget.items;
 
-    // ✅ Safe subtotal calculation
+    // Safe subtotal calculation
     final subtotal = items.fold<double>(
       0,
           (sum, item) =>
       sum + ((item['price']?.toDouble() ?? 0) * (item['quantity']?.toInt() ?? 1)),
     );
 
-    // ✅ Total includes shipping cost safely
-    final total = subtotal + (widget.shippingCost);
+    // Total includes shipping cost and subtracts discount
+    final total = subtotal + widget.shippingCost - widget.discount;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Order Information'),
         backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
       ),
+      backgroundColor: Colors.white,
       body: deliveryLocation == null
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -172,17 +176,19 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 ),
               ],
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Payment Method'),
-                Text(
-                  widget.paymentMethod,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.black87),
-                ),
-              ],
-            ),
+            if (widget.discount > 0) // Display discount if applicable
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Discount'),
+                  Text(
+                    '- Rs. ${widget.discount.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.green),
+                  ),
+                ],
+              ),
+            const Divider(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -196,7 +202,19 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            const Text('Note: Please call when you come. Thank you!'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Payment Method'),
+                Text(
+                  widget.paymentMethod,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black87),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Text('Note: Kindly verify the package contents upon delivery. Thank you!'),
             const SizedBox(height: 32),
 
             Row(

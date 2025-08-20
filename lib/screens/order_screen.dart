@@ -242,7 +242,8 @@ class _OrderScreenState extends State<OrderScreen> {
                               orderId: order['id'] ?? 'Unknown',
                               shippingMethod: order['shippingMethod'] ?? "Standard Delivery",
                               shippingCost: (order['shippingCost'] ?? 0.0).toDouble(),
-                              paymentMethod: order['paymentMethod'] ?? "Cash on Delivery", // ✅ pass payment method
+                              paymentMethod: order['paymentMethod'] ?? "Cash on Delivery",
+                              discount: order['discount'],
                             ),
                           ),
                         );

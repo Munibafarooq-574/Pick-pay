@@ -8,14 +8,20 @@ class PaymentSuccessfulScreen extends StatefulWidget {
   final Map<String, dynamic> addressDetails;
   final String shippingMethod;
   final String paymentMethod;
+  final double shippingPrice;
+  final double discount;
+  final double total;
 
   const PaymentSuccessfulScreen({
-    super.key,
+    Key? key,
     required this.purchasedProducts,
     required this.addressDetails,
     required this.shippingMethod,
     required this.paymentMethod,
-  });
+    required this.shippingPrice,
+    required this.discount,
+    required this.total,
+  }) : super(key: key);
 
   @override
   State<PaymentSuccessfulScreen> createState() => _PaymentSuccessfulScreenState();
@@ -33,19 +39,20 @@ class _PaymentSuccessfulScreenState extends State<PaymentSuccessfulScreen> {
   void _saveOrders() {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
-    // Add the entire order at once, including all products
     userProvider.addOrder({
       'items': widget.purchasedProducts,
       'status': 'completed',
       'date': DateTime.now().toIso8601String(),
       'address': userProvider.user?.address ?? widget.addressDetails['addressLine1'] ?? "Unknown address",
-      'latitude': widget.addressDetails['latitude'],   // ✅ save lat
-      'longitude': widget.addressDetails['longitude'], // ✅ save lng
-      'name': userProvider.user?.username ?? "Unknown User",
-      'email': userProvider.user?.email ?? 'unknown',
+      'latitude': widget.addressDetails['latitude'] ?? null,
+      'longitude': widget.addressDetails['longitude'] ?? null,
+      'name': userProvider.user?.username ?? widget.addressDetails['name'] ?? "Unknown User",
+      'email': userProvider.user?.email ?? widget.addressDetails['email'] ?? 'unknown',
       'shippingMethod': widget.shippingMethod,
-      'shippingCost': (widget.addressDetails['shippingCost'] ?? 0.0).toDouble(),
+      'shippingCost': widget.shippingPrice,
       'paymentMethod': widget.paymentMethod,
+      'discount': widget.discount,
+      'total': widget.total,
     });
   }
 
@@ -56,21 +63,10 @@ class _PaymentSuccessfulScreenState extends State<PaymentSuccessfulScreen> {
     double totalAmount = widget.purchasedProducts.fold(
         0, (sum, item) => sum + (item['price'] * item['quantity']));
 
+    // Use widget.shippingPrice directly as it reflects the selected shipping method
+    double shippingCost = widget.shippingPrice;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Payment Successful",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
-        automaticallyImplyLeading: false,
-      ),
       backgroundColor: Colors.grey.shade50,
       body: SafeArea(
         child: Stack(
@@ -88,7 +84,7 @@ class _PaymentSuccessfulScreenState extends State<PaymentSuccessfulScreen> {
                     ),
                     const SizedBox(height: 20),
                     const Text(
-                      "Payment Successful!",
+                      "Order Placed Successful!",
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -164,7 +160,7 @@ class _PaymentSuccessfulScreenState extends State<PaymentSuccessfulScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
-                                "Total",
+                                "SubTotal",
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -268,6 +264,74 @@ class _PaymentSuccessfulScreenState extends State<PaymentSuccessfulScreen> {
                     ),
                     const SizedBox(height: 20),
 
+                    // ---------- Payment Summary ----------
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Payment Summary",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Divider(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text("SubTotal", style: TextStyle(fontSize: 16)),
+                              Text("Rs. $totalAmount", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text("Shipping", style: TextStyle(fontSize: 16)),
+                              Text("Rs. ${shippingCost.toStringAsFixed(0)}", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          if (widget.discount > 0)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text("Discount", style: TextStyle(fontSize: 16)),
+                                Text(
+                                  "- Rs. ${widget.discount.toStringAsFixed(0)}",
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green),
+                                ),
+                              ],
+                            ),
+                          const Divider(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Total",
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                "Rs. ${(totalAmount + shippingCost - widget.discount).toStringAsFixed(0)}",
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                     // ---------- Logo ----------
                     SizedBox(
                       height: 180,
