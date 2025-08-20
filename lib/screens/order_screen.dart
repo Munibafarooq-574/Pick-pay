@@ -15,18 +15,60 @@ class OrderScreen extends StatefulWidget {
 class _OrderScreenState extends State<OrderScreen> {
   String _selectedFilter = 'History';
 
+  // Dummy orders for the History section
+  final List<Map<String, dynamic>> _dummyOrders = [
+    {
+      'id': 'ORD0012323454345',
+      'email': 'muniba@example.com',
+      'name': 'Muniba',
+      'status': 'completed',
+      'date': '2025-07-15T10:00:00Z',
+      'address': '123 Main St, City',
+      'shippingMethod': 'Standard Delivery',
+      'shippingCost': 500,
+      'paymentMethod': 'Credit Card',
+      'discount': 10.0,
+      'items': [
+        {'name': 'Matte Foundation', 'quantity': 2, 'price': 1500},
+        {'name': 'Volumizing Mascara', 'quantity': 1, 'price': 900},
+      ],
+    },
+    {
+      'id': 'ORD00243565478654',
+      'email': 'muniba@example.com',
+      'name': 'Muniba farooq',
+      'status': 'completed',
+      'date': '2025-06-20T14:30:00Z',
+      'address': 'service road E-9 /E-8, Islamabad',
+      'shippingMethod': 'Express Delivery',
+      'shippingCost': 1000,
+      'paymentMethod': 'Cash on delivery',
+      'discount': 15.0,
+      'items': [
+        {'name': 'Gold Necklace', 'quantity': 3, 'price': 5000},
+      ],
+    },
+  ];
+
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
     final orders = userProvider.orders;
     final userName = userProvider.user?.username ?? 'Unknown User';
-    final userEmail = userProvider.user?.email ?? '';
+    final userEmail = userProvider.user?.email ?? 'user@example.com';
 
-    final filteredOrders = orders
+    // Combine provider orders with dummy orders for History section
+    final filteredOrders = _selectedFilter == 'History'
+        ? [
+      ..._dummyOrders,
+      ...orders
+          .where((order) => order['email'] == userEmail)
+          .where((order) => order['status'] == 'completed')
+          .toList()
+    ]
+        : orders
         .where((order) => order['email'] == userEmail)
-        .where((order) => _selectedFilter == 'Ongoing'
-        ? order['status'] == 'ongoing'
-        : order['status'] == 'completed')
+        .where((order) => order['status'] == 'ongoing')
         .toList();
 
     return Scaffold(
@@ -117,29 +159,33 @@ class _OrderScreenState extends State<OrderScreen> {
                               "Are you sure you want to delete this order?"),
                           actions: [
                             TextButton(
-                              onPressed: () => Navigator.of(context).pop(false),
+                              onPressed: () =>
+                                  Navigator.of(context).pop(false),
                               child: const Text("Cancel"),
                             ),
                             TextButton(
-                              onPressed: () => Navigator.of(context).pop(true),
-                              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+                              onPressed: () =>
+                                  Navigator.of(context).pop(true),
+                              child: const Text("Delete",
+                                  style: TextStyle(color: Colors.red)),
                             ),
                           ],
                         );
                       },
                     );
                   },
-                    onDismissed: (direction) {
-                      final originalIndex = userProvider.orders.indexWhere((o) => o['id'] == order['id']);
-                      if (originalIndex != -1) {
-                        userProvider.removeOrder(originalIndex);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Order deleted")),
-                        );
-                      }
-                    },
-
-                    child: Container(
+                  onDismissed: (direction) {
+                    // Only allow deletion of provider orders, not dummy orders
+                    final originalIndex = userProvider.orders
+                        .indexWhere((o) => o['id'] == order['id']);
+                    if (originalIndex != -1) {
+                      userProvider.removeOrder(originalIndex);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Order deleted")),
+                      );
+                    }
+                  },
+                  child: Container(
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -188,20 +234,18 @@ class _OrderScreenState extends State<OrderScreen> {
                       ),
                       subtitle: Text(
                         order['items'] != null
-                            ? "Total quantity: ${(order['items'] as List)
-                            .fold(0, (sum, item) => sum + ((item['quantity'] ?? 1) as num).toInt())}"
+                            ? "Total quantity: ${(order['items'] as List).fold(0, (sum, item) => sum + ((item['quantity'] ?? 1) as num).toInt())}"
                             : 'No items',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-
                       trailing: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             order['date'] != null
-                                ? DateFormat('MMM d, yyyy')
-                                .format(DateTime.parse(order['date']))
+                                ? DateFormat('MMM d, yyyy').format(
+                                DateTime.parse(order['date']))
                                 : 'Unknown date',
                             style: const TextStyle(
                                 fontSize: 12, color: Colors.grey),
@@ -237,12 +281,17 @@ class _OrderScreenState extends State<OrderScreen> {
                           MaterialPageRoute(
                             builder: (_) => OrderDetailsScreen(
                               items: items,
-                              date: order['date'] ?? DateTime.now().toIso8601String(),
-                              address: order['address'] ?? "Unknown address",
+                              date: order['date'] ??
+                                  DateTime.now().toIso8601String(),
+                              address:
+                              order['address'] ?? "Unknown address",
                               orderId: order['id'] ?? 'Unknown',
-                              shippingMethod: order['shippingMethod'] ?? "Standard Delivery",
-                              shippingCost: (order['shippingCost'] ?? 0.0).toDouble(),
-                              paymentMethod: order['paymentMethod'] ?? "Cash on Delivery",
+                              shippingMethod:
+                              order['shippingMethod'] ?? "Standard Delivery",
+                              shippingCost:
+                              (order['shippingCost'] ?? 0.0).toDouble(),
+                              paymentMethod:
+                              order['paymentMethod'] ?? "Cash on Delivery",
                               discount: order['discount'],
                             ),
                           ),

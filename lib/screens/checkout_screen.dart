@@ -629,7 +629,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                       CartManager.instance.cartItemsNotifier.value = [];
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Payment successful!")),
+                        const SnackBar(content: Text("Order Placed successful!")),
                       );
 
                       // Step 1: Capture shipping cost based on selected shipping method
@@ -664,9 +664,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       // Step 5: Clear cart AFTER capturing products
                       CartManager.instance.cartItemsNotifier.value = [];
 
-                         ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Payment successful!")),
-                          );
                       // Step 6: Navigate to PaymentSuccessfulScreen
                       Navigator.pushReplacement(
                         context,
@@ -701,7 +698,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ),
                       child: const Center(
                         child: Text(
-                          "Pay Now",
+                          "Order Completed",
                           style: TextStyle(
                               fontSize: 20,
                               color: Colors.white,
