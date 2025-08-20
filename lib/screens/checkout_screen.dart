@@ -114,7 +114,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
-  double getShippingCost() => selectedShipping == 'Standard' ? 0.0 : 10.0;
+
+  double getShippingCost() => selectedShipping == 'Standard' ? 500.0 : 1000.0;
 
   // ---- InputDecoration with error borders
   InputDecoration _decoration(String label, {bool required = false}) {
@@ -611,7 +612,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         );
                         return;
                       }
-
+                      // Save user info if needed
                       if (saveInfo) {
                         Provider.of<UserProvider>(context, listen: false).saveCheckoutInfo(
                           email: emailController.text,
@@ -630,29 +631,54 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Payment successful!")),
                       );
+
+                      // Step 1: Capture shipping cost based on selected shipping method
+                      final shippingPrice = getShippingCost(); // <- make sure this returns 500, 1000, etc.
+
+                      // Step 2: Capture purchased products
+                      final purchasedProducts = cartItems.map((item) {
+                        return {
+                          'name': item['name'],
+                          'price': item['price'],
+                          'quantity': item['quantity'],
+                        };
+                      }).toList();
+
+                      // Step 3: Build address map
+                      final addressMap = {
+                        'name': '${firstNameController.text} ${lastNameController.text}',
+                        'addressLine1': addressController.text,
+                        'addressLine2': landmarkController.text,
+                        'city': cityController.text,
+                        'state': '',
+                        'postalCode': postalCodeController.text,
+                        'country': selectedCountry ?? 'Pakistan',
+                        'phone': phoneController.text,
+                      };
+
+                      // Step 4: Calculate totals
+                      final discount = appliedDiscount;
+                      final subtotal = CartManager.instance.getTotal();
+                      final totalAmount = subtotal + shippingPrice - discount;
+
+                      // Step 5: Clear cart AFTER capturing products
+                      CartManager.instance.cartItemsNotifier.value = [];
+
+                         ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Payment successful!")),
+                          );
+                      // Step 6: Navigate to PaymentSuccessfulScreen
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (_) => PaymentSuccessfulScreen(
-                            purchasedProducts: cartItems.map((item) {
-                              return {
-                                'name': item['name'],
-                                'price': item['price'],
-                                'quantity': item['quantity'],
-                              };
-                            }).toList(),
-                            addressDetails: {
-                              'name': '${firstNameController.text} ${lastNameController.text}',
-                              'addressLine1': addressController.text,
-                              'addressLine2': landmarkController.text,
-                              'city': cityController.text,
-                              'state': '', // Add actual state if available
-                              'postalCode': postalCodeController.text,
-                              'country': selectedCountry ?? 'Pakistan',
-                              'phone': phoneController.text,
-                            },
-                            shippingMethod: 'Standard Shipping', // Replace with actual shipping method if available
-                            paymentMethod: 'Credit Card', // Replace with actual payment method if available
+                            purchasedProducts: purchasedProducts,
+                            addressDetails: addressMap,
+                            shippingMethod: selectedShipping,
+                            paymentMethod: selectedPayment,
+                            shippingPrice: shippingPrice, // <- pass it here
+                            discount: discount,
+                            total: totalAmount,           // <- total includes shipping
                           ),
                         ),
                       );
