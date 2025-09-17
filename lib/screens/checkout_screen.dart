@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pick_pay/screens/payment_successful_screen.dart';
+import 'package:pick_pay/screens/order_successful_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:pick_pay/manager/cart_manager.dart';
 import 'package:pick_pay/providers/user_provider.dart';
