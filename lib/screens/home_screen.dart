@@ -8,13 +8,13 @@ import 'package:google_fonts/google_fonts.dart'; // For modern typography
 // For custom icons
 import 'package:cached_network_image/cached_network_image.dart'; // For efficient image loading
 import '../manager/cart_manager.dart';
+import '../manager/wishlist_manager.dart';
 import '../providers/user_provider.dart';
 import 'accessories_screen.dart';
 import 'cart_screen.dart';
 import 'clothing_screen.dart';
 import 'makeup_screen.dart';
 import 'order_screen.dart';
-import 'orders_information_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,6 +27,26 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   String _searchQuery = "";
   bool _isFilterVisible = false;
+
+
+  String _normalizeCategory(String category) {
+    final lowerCategory = category.toLowerCase();
+    switch (lowerCategory) {
+      case 'makeup':
+      case 'beauty':
+        return 'Beauty';
+      case 'clothes':
+      case 'clothing':
+        return 'Clothing';
+      case 'shoe':
+      case 'shoes':
+        return 'Shoes';
+      case 'electronics': // Add mapping for electronics
+        return 'Accessories';
+      default:
+        return category[0].toUpperCase() + category.substring(1).toLowerCase();
+    }
+  }
 
   final List<Map<String, dynamic>> _products = [
     {
@@ -571,11 +591,19 @@ class _HomeScreenState extends State<HomeScreen> {
     final name = product['name'] ?? 'Product Name';
     final price = (product['price'] as num?)?.toDouble().toStringAsFixed(2) ?? '0.00';
     final category = product['category'] ?? 'Unknown';
+    final normalizedCategory = _normalizeCategory(category); // Normalize the category
+
+    final wishlistProduct = {
+      'name': name,
+      'price': double.tryParse(price) ?? 0.0,
+      'type': category,
+      'imageUrl': product['image'] ?? 'https://example.com/placeholder.jpg',
+      'category': normalizedCategory, // Use normalized category
+    };
 
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
-        // Create a structured product map for the cart
         final cartProduct = {
           'name': name,
           'price': double.tryParse(price) ?? 0.0,
@@ -626,23 +654,32 @@ class _HomeScreenState extends State<HomeScreen> {
                   Positioned(
                     right: 8,
                     top: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: isDarkMode ? Colors.grey[700] : Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: isDarkMode ? Colors.black26 : Colors.black12,
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.favorite_border,
-                        color: isPopular ? Colors.red : Colors.grey,
-                        size: 18,
+                    child: GestureDetector(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        WishlistManager.instance.addToWishlist(normalizedCategory, wishlistProduct);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('$name added to $normalizedCategory wishlist'))
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: isDarkMode ? Colors.grey[700] : Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: isDarkMode ? Colors.black26 : Colors.black12,
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.favorite_border,
+                          color: isPopular ? Colors.red : Colors.grey,
+                          size: 18,
+                        ),
                       ),
                     ),
                   ),
@@ -805,4 +842,6 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
+
+
 }

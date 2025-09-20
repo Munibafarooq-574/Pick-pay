@@ -8,7 +8,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:pick_pay/screens/product_list_screen.dart';
 import 'package:pick_pay/screens/wishlist_screen.dart'; // Import WishlistScreen
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../manager/wishlist_manager.dart';
 
 class ClothingScreen extends StatefulWidget {
   final List<Map<String, dynamic>> products;
@@ -195,129 +198,131 @@ class _ClothingScreenState extends State<ClothingScreen> with TickerProviderStat
       }
     }
   }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: ScaleTransition(
-        scale: _fabScaleAnimation,
-        child: FloatingActionButton(
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            setState(() {
-              _selectedType.updateAll((key, value) => null);
-              _selectedType.forEach((section, _) => _saveSelection(section, null));
-            });
-          },
-          backgroundColor: Colors.white,
-          child: const Icon(Icons.refresh, color: Colors.black),
-          tooltip: 'Reset Selections',
+    return ChangeNotifierProvider.value(
+      value: WishlistManager.instance, // Use the singleton instance
+      child: Scaffold(
+        floatingActionButton: ScaleTransition(
+          scale: _fabScaleAnimation,
+          child: FloatingActionButton(
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              setState(() {
+                _selectedType.updateAll((key, value) => null);
+                _selectedType.forEach((section, _) => _saveSelection(section, null));
+              });
+            },
+            backgroundColor: Colors.white,
+            child: const Icon(Icons.refresh, color: Colors.black),
+            tooltip: 'Reset Selections',
+          ),
         ),
-      ),
-      body: AnimatedContainer(
-        duration: const Duration(seconds: 8),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-        ),
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      _buildAppBar(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Focus(
-                          onFocusChange: (hasFocus) {
-                            setState(() {
-                              _isSearchFocused = hasFocus;
-                            });
-                          },
-                          child: TextField(
-                            controller: _searchController,
-                            decoration: InputDecoration(
-                              hintText: 'Search clothing...',
-                              hintStyle: GoogleFonts.poppins(color: Colors.grey[600]),
-                              prefixIcon: const Icon(IconlyLight.search, color: Colors.grey),
-                              suffixIcon: _searchQuery.isNotEmpty
-                                  ? IconButton(
-                                icon: const Icon(Icons.clear, color: Colors.grey),
-                                onPressed: () {
-                                  setState(() {
-                                    _searchController.clear();
-                                    _searchQuery = '';
-                                  });
-                                },
-                              )
-                                  : null,
-                              filled: true,
-                              fillColor: Colors.white.withOpacity(0.8),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: BorderSide(color: Colors.grey[400]!, width: 1),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: BorderSide(
-                                  color: _isSearchFocused
-                                      ? const Color(0xFF2e4cb6)
-                                      : Colors.grey[400]!,
-                                  width: 2,
+        body: AnimatedContainer(
+          duration: const Duration(seconds: 8),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+          ),
+          child: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        _buildAppBar(),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Focus(
+                            onFocusChange: (hasFocus) {
+                              setState(() {
+                                _isSearchFocused = hasFocus;
+                              });
+                            },
+                            child: TextField(
+                              controller: _searchController,
+                              decoration: InputDecoration(
+                                hintText: 'Search clothing...',
+                                hintStyle: GoogleFonts.poppins(color: Colors.grey[600]),
+                                prefixIcon: const Icon(IconlyLight.search, color: Colors.grey),
+                                suffixIcon: _searchQuery.isNotEmpty
+                                    ? IconButton(
+                                  icon: const Icon(Icons.clear, color: Colors.grey),
+                                  onPressed: () {
+                                    setState(() {
+                                      _searchController.clear();
+                                      _searchQuery = '';
+                                    });
+                                  },
+                                )
+                                    : null,
+                                filled: true,
+                                fillColor: Colors.white.withOpacity(0.8),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: BorderSide(color: Colors.grey[400]!, width: 1),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: BorderSide(
+                                    color: _isSearchFocused
+                                        ? const Color(0xFF2e4cb6)
+                                        : Colors.grey[400]!,
+                                    width: 2,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(color: Color(0xFF2e4cb6), width: 2),
                                 ),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Color(0xFF2e4cb6), width: 2),
-                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  _searchQuery = value.toLowerCase();
+                                });
+                              },
                             ),
-                            onChanged: (value) {
-                              setState(() {
-                                _searchQuery = value.toLowerCase();
-                              });
+                          ),
+                        ),
+                        if (_isSearchFocused && _searchQuery.isNotEmpty)
+                          _buildSearchSuggestions(),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              double width = constraints.maxWidth;
+                              int crossAxisCount = (width / 250).floor().clamp(1, 2);
+                              double childWidth = (width - (crossAxisCount - 1) * 16) / crossAxisCount;
+                              double childHeight = childWidth * 1.3;
+
+                              return GridView.count(
+                                crossAxisCount: crossAxisCount,
+                                crossAxisSpacing: 16,
+                                mainAxisSpacing: 16,
+                                physics: const NeverScrollableScrollPhysics(),
+                                childAspectRatio: childWidth / childHeight,
+                                shrinkWrap: true,
+                                padding: const EdgeInsets.all(8.0),
+                                children: _selectedType.keys
+                                    .where((section) =>
+                                section.toLowerCase().contains(_searchQuery) ||
+                                    _clothingTypes[section]!
+                                        .any((type) => type.toLowerCase().contains(_searchQuery)))
+                                    .map((section) {
+                                  return _buildSectionCard(section);
+                                }).toList(),
+                              );
                             },
                           ),
                         ),
-                      ),
-                      if (_isSearchFocused && _searchQuery.isNotEmpty)
-                        _buildSearchSuggestions(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            double width = constraints.maxWidth;
-                            int crossAxisCount = (width / 250).floor().clamp(1, 2);
-                            double childWidth = (width - (crossAxisCount - 1) * 16) / crossAxisCount;
-                            double childHeight = childWidth * 1.3;
-
-                            return GridView.count(
-                              crossAxisCount: crossAxisCount,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              physics: const NeverScrollableScrollPhysics(),
-                              childAspectRatio: childWidth / childHeight,
-                              shrinkWrap: true,
-                              padding: const EdgeInsets.all(8.0),
-                              children: _selectedType.keys
-                                  .where((section) =>
-                              section.toLowerCase().contains(_searchQuery) ||
-                                  _clothingTypes[section]!
-                                      .any((type) => type.toLowerCase().contains(_searchQuery)))
-                                  .map((section) {
-                                return _buildSectionCard(section);
-                              }).toList(),
-                            );
-                          },
-                        ),
-                      )
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -325,36 +330,68 @@ class _ClothingScreenState extends State<ClothingScreen> with TickerProviderStat
   }
 
   Widget _buildAppBar() {
-    return AppBar(
-      title: Text(
-        "Clothing",
-        style: GoogleFonts.poppins(
-          fontWeight: FontWeight.bold,
-          fontSize: 24,
-          color: Colors.black,
-        ),
-      ),
-      backgroundColor: Colors.white,
-      elevation: 0,
-      centerTitle: true,
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.favorite_border, color: Colors.black),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) =>  WishlistScreen(category: 'Clothing'),
-              ),
-            );
+    return Consumer<WishlistManager>(
+      builder: (context, wishlistManager, child) {
+        final wishlistCount = wishlistManager.getWishlist('Clothing').length;
+        if (kDebugMode) {
+          print('Clothing Wishlist Count: $wishlistCount');
+        } // Debug print
 
-          },
-          tooltip: 'Wishlist',
-        ),
-      ],
+        return AppBar(
+          title: Text(
+            "Clothing",
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              color: Colors.black,
+            ),
+          ),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          centerTitle: true,
+          actions: [
+            Stack(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.favorite_border, color: Colors.black),
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => WishlistScreen(category: 'Clothing'),
+                      ),
+                    );
+                    setState(() {}); // Fallback refresh
+                  },
+                  tooltip: 'Wishlist',
+                ),
+                if (wishlistCount > 0) // Show badge only if there are items
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '$wishlistCount',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
-
   Widget _buildSearchSuggestions() {
     final suggestions = _clothingTypes.values
         .expand((types) => types)

@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +7,9 @@ import 'package:google_fonts/google_fonts.dart'; // For modern typography
 import 'package:flutter_iconly/flutter_iconly.dart'; // For custom icons
 import 'package:pick_pay/screens/product_list_screen.dart';
 import 'package:pick_pay/screens/wishlist_screen.dart'; // Import WishlistScreen
-import 'package:shared_preferences/shared_preferences.dart'; // For persistent state
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../manager/wishlist_manager.dart'; // For persistent state
 
 class ShoesScreen extends StatefulWidget {
   final List<Map<String, dynamic>> products;
@@ -35,12 +37,12 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
     "Girls": ["Sneakers", "School Shoes", "Sandals"],
   };
 
-  // Category-specific background images
+  // Category-specific background images (using stable placeholders if needed)
   final Map<String, String> _categoryImages = {
     "Women": "https://www.hushpuppies.com.pk/cdn/shop/files/500x615-2.jpg?v=1749803429&width=500",
     "Men": "https://www.hushpuppies.com.pk/cdn/shop/files/500x615-1.jpg?v=1749803429&width=500",
-    "Boys": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTH0yohNGGPlArWGqO32aIDEoS3KT6AJL_V7w&s",
-    "Girls": "https://encrypted-tbn0.gstatic.com/images?q=tbn9GcRMLM2SWahLkFxALgYrO19p43aD1q3UeQAhvBJXLit5k1TQKs23L65N-zTrI1Kx6W8jkm0&usqp=CAU",
+    "Boys": "https://via.placeholder.com/500x615?text=Boys+Shoes",
+    "Girls": "https://via.placeholder.com/500x615?text=Girls+Shoes",
   };
 
   // List of products
@@ -105,6 +107,7 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
         print('Error loading selections: $e');
       }
     });
+    print('Initial selections: $_selectedType'); // Debug initial state
 
     // Gradient animation controller
     _gradientAnimationController = AnimationController(
@@ -167,130 +170,132 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: ScaleTransition(
-        scale: _fabScaleAnimation,
-        child: FloatingActionButton(
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            setState(() {
-              _selectedType.updateAll((key, value) => null);
-              _selectedType.forEach((section, _) => _saveSelection(section, null));
-            });
-          },
-          backgroundColor: Colors.white,
-          tooltip: 'Reset Selections',
-          child: const Icon(Icons.refresh, color: Colors.black),
+    return ChangeNotifierProvider.value(
+      value: WishlistManager.instance, // Provide WishlistManager instance
+      child: Scaffold(
+        floatingActionButton: ScaleTransition(
+          scale: _fabScaleAnimation,
+          child: FloatingActionButton(
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              setState(() {
+                _selectedType.updateAll((key, value) => null);
+                _selectedType.forEach((section, _) => _saveSelection(section, null));
+              });
+            },
+            backgroundColor: Colors.white,
+            tooltip: 'Reset Selections',
+            child: const Icon(Icons.refresh, color: Colors.black),
+          ),
         ),
-      ),
-      body: AnimatedContainer(
-        duration: const Duration(seconds: 8),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-        ),
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // App bar
-                      _buildAppBar(),
-                      // Search bar
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Focus(
-                          onFocusChange: (hasFocus) {
-                            setState(() {
-                              _isSearchFocused = hasFocus;
-                            });
-                          },
-                          child: TextField(
-                            controller: _searchController,
-                            decoration: InputDecoration(
-                              hintText: 'Search shoes...',
-                              hintStyle: GoogleFonts.poppins(color: Colors.grey[600]),
-                              prefixIcon: const Icon(IconlyLight.search, color: Colors.grey),
-                              suffixIcon: _searchQuery.isNotEmpty
-                                  ? IconButton(
-                                icon: const Icon(Icons.clear, color: Colors.grey),
-                                onPressed: () {
-                                  setState(() {
-                                    _searchController.clear();
-                                    _searchQuery = '';
-                                  });
-                                },
-                              )
-                                  : null,
-                              filled: true,
-                              fillColor: Colors.white.withOpacity(0.8),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: BorderSide(color: Colors.grey[400]!, width: 1),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: BorderSide(
-                                  color: _isSearchFocused
-                                      ? const Color(0xFF2e4cb6)
-                                      : Colors.grey[400]!,
-                                  width: 2,
+        body: AnimatedContainer(
+          duration: const Duration(seconds: 8),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+          ),
+          child: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // App bar
+                        _buildAppBar(),
+                        // Search bar
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Focus(
+                            onFocusChange: (hasFocus) {
+                              setState(() {
+                                _isSearchFocused = hasFocus;
+                              });
+                            },
+                            child: TextField(
+                              controller: _searchController,
+                              decoration: InputDecoration(
+                                hintText: 'Search shoes...',
+                                hintStyle: GoogleFonts.poppins(color: Colors.grey[600]),
+                                prefixIcon: const Icon(IconlyLight.search, color: Colors.grey),
+                                suffixIcon: _searchQuery.isNotEmpty
+                                    ? IconButton(
+                                  icon: const Icon(Icons.clear, color: Colors.grey),
+                                  onPressed: () {
+                                    setState(() {
+                                      _searchController.clear();
+                                      _searchQuery = '';
+                                    });
+                                  },
+                                )
+                                    : null,
+                                filled: true,
+                                fillColor: Colors.white.withOpacity(0.8),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: BorderSide(color: Colors.grey[400]!, width: 1),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: BorderSide(
+                                    color: _isSearchFocused
+                                        ? const Color(0xFF2e4cb6)
+                                        : Colors.grey[400]!,
+                                    width: 2,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(color: Color(0xFF2e4cb6), width: 2),
                                 ),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide:
-                                const BorderSide(color: Color(0xFF2e4cb6), width: 2),
-                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  _searchQuery = value.toLowerCase();
+                                });
+                              },
                             ),
-                            onChanged: (value) {
-                              setState(() {
-                                _searchQuery = value.toLowerCase();
-                              });
+                          ),
+                        ),
+                        // Search suggestions
+                        if (_isSearchFocused && _searchQuery.isNotEmpty)
+                          _buildSearchSuggestions(),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              double width = constraints.maxWidth;
+                              int crossAxisCount = (width / 250).floor().clamp(1, 2);
+                              double childWidth = (width - (crossAxisCount - 1) * 16) / crossAxisCount;
+                              double childHeight = childWidth * 1.3;
+
+                              return GridView.count(
+                                crossAxisCount: crossAxisCount,
+                                crossAxisSpacing: 16,
+                                mainAxisSpacing: 16,
+                                physics: const NeverScrollableScrollPhysics(),
+                                childAspectRatio: childWidth / childHeight,
+                                shrinkWrap: true,
+                                padding: const EdgeInsets.all(8.0),
+                                children: _selectedType.keys
+                                    .where((section) =>
+                                section.toLowerCase().contains(_searchQuery) ||
+                                    _shoeTypes[section]!
+                                        .any((type) => type.toLowerCase().contains(_searchQuery)))
+                                    .map((section) {
+                                  return _buildSectionCard(section);
+                                }).toList(),
+                              );
                             },
                           ),
                         ),
-                      ),
-                      // Search suggestions
-                      if (_isSearchFocused && _searchQuery.isNotEmpty)
-                        _buildSearchSuggestions(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            double width = constraints.maxWidth;
-                            int crossAxisCount = (width / 250).floor().clamp(1, 2);
-                            double childWidth = (width - (crossAxisCount - 1) * 16) / crossAxisCount;
-                            double childHeight = childWidth * 1.3;
-
-                            return GridView.count(
-                              crossAxisCount: crossAxisCount,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              physics: const NeverScrollableScrollPhysics(),
-                              childAspectRatio: childWidth / childHeight,
-                              shrinkWrap: true,
-                              padding: const EdgeInsets.all(8.0),
-                              children: _selectedType.keys
-                                  .where((section) =>
-                              section.toLowerCase().contains(_searchQuery) ||
-                                  _shoeTypes[section]!
-                                      .any((type) => type.toLowerCase().contains(_searchQuery)))
-                                  .map((section) {
-                                return _buildSectionCard(section);
-                              }).toList(),
-                            );
-                          },
-                        ),
-                      )
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -298,32 +303,64 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
   }
 
   Widget _buildAppBar() {
-    return AppBar(
-      title: Text(
-        "Shoes",
-        style: GoogleFonts.poppins(
-          fontWeight: FontWeight.bold,
-          fontSize: 24,
-          color: Colors.black,
-        ),
-      ),
-      backgroundColor: Colors.white,
-      elevation: 0,
-      centerTitle: true,
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.favorite_border, color: Colors.black),
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => WishlistScreen(category: 'Shoes'),
+    return Consumer<WishlistManager>(
+      builder: (context, wishlistManager, child) {
+        final wishlistCount = wishlistManager.getWishlist('Shoes').length;
+        print('Shoes wishlist count updated: $wishlistCount'); // Debug log—remove later if you want
+
+        return AppBar(
+          title: Text(
+            "Shoes",
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              color: Colors.black,
+            ),
+          ),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          centerTitle: true,
+          actions: [
+            Stack(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.favorite_border, color: Colors.black),
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => WishlistScreen(category: 'Shoes'),
+                      ),
+                    );
+                    setState(() {}); // Fallback refresh on return
+                  },
+                  tooltip: 'Wishlist',
                 ),
-            );
-          },
-          tooltip: 'Wishlist',
-        ),
-      ],
+                if (wishlistCount > 0)
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '$wishlistCount',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 

@@ -6,6 +6,7 @@ import 'package:pick_pay/screens/home_screen.dart';
 import 'package:pick_pay/screens/login_screen.dart';
 import 'package:pick_pay/screens/signup_screen.dart';
 import 'package:provider/provider.dart';
+import 'manager/wishlist_manager.dart'; // Ensure this import is correct
 import 'screens/logo_screen.dart';
 
 void main() async {
@@ -15,12 +16,15 @@ void main() async {
   // 🔥 Load saved user info from SharedPreferences
   await userProvider.loadUserFromPrefs();
 
+  // Create or use the singleton instance of WishlistManager
+  final wishlistManager = WishlistManager.instance; // Use the singleton instance
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => PreferencesProvider()),
-        // Provide the already-loaded userProvider instance
         ChangeNotifierProvider<UserProvider>.value(value: userProvider),
+        ChangeNotifierProvider<WishlistManager>.value(value: wishlistManager), // Use the declared instance
       ],
       child: const MyApp(),
     ),

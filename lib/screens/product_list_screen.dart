@@ -127,7 +127,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
                 ),
               )
                   : const BoxDecoration(
-                color: Colors.white, // Removed dark mode support
+                color: Colors.white,
               ),
               child: SafeArea(
                 child: Column(
@@ -233,11 +233,12 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
     final normalizedCategory = _normalizeCategory(mainCategory);
 
     final wishlistProduct = {
+      'id': product['id'],
       'name': name,
       'price': double.tryParse(price) ?? 0.0,
-      'type': type,
+      'type': product['type'] ?? 'Unknown',
       'imageUrl': product['imageUrl'] ?? 'https://example.com/placeholder.jpg',
-      'category': normalizedCategory,  // ✅ normalized use
+      'category': normalizedCategory,
     };
 
 
@@ -301,7 +302,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
                       onTap: () {
                         WishlistManager.instance.addToWishlist(normalizedCategory, wishlistProduct);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('$name added to wishlist')),
+                            SnackBar(content: Text('$name added to $normalizedCategory wishlist'))
                         );
                       },
                       child: const Icon(Icons.favorite_border, color: Colors.red, size: 18),

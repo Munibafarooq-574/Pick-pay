@@ -8,6 +8,8 @@ import 'package:flutter_iconly/flutter_iconly.dart'; // For custom icons
 import 'package:pick_pay/screens/product_list_screen.dart';
 import 'package:pick_pay/screens/wishlist_screen.dart'; // Import WishlistScreen
 import 'package:shared_preferences/shared_preferences.dart'; // For persistent state
+import 'package:provider/provider.dart'; // For state management
+import '../manager/wishlist_manager.dart'; // For wishlist state
 
 class AccessoriesScreen extends StatefulWidget {
   final List<Map<String, dynamic>> products;
@@ -36,12 +38,13 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
   final Map<String, String> _categoryImages = {
     "Jewelry": "https://static-01.daraz.pk/p/a4b2738210c7fa0669b8dbdc7769d231.jpg",
     "Bags": "https://i.pinimg.com/originals/a3/89/a5/a389a5a2f3da5935a7e6693295d466f0.jpg",
-    "Watches": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRB3t-KusnC07Y4jIVjxMXn5F0KztaD6DJvcw&s",
+    "Watches": "https://encrypted-tbn0.gstatic.com/images?q=tbn9GcRB3t-KusnC07Y4jIVjxMXn5F0KztaD6DJvcw&s",
   };
 
   // List of products
   final List<Map<String, dynamic>> _products = [
-    // Jewelry products
+    // ---------------- Jewelry ----------------
+    // Necklaces
     {
       "id": 1,
       "name": "Gold Necklace",
@@ -54,6 +57,27 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
     },
     {
       "id": 2,
+      "name": "Silver Necklace",
+      "price": 3000.0,
+      "imageUrl": "https://example.com/silver_necklace.jpg",
+      "section": "Jewelry",
+      "type": "Necklaces",
+      "isPopular": false,
+      "discount": 10.0,
+    },
+    {
+      "id": 3,
+      "name": "Pearl Necklace",
+      "price": 4500.0,
+      "imageUrl": "https://example.com/pearl_necklace.jpg",
+      "section": "Jewelry",
+      "type": "Necklaces",
+      "isPopular": true,
+      "discount": 12.0,
+    },
+    // Earrings
+    {
+      "id": 5,
       "name": "Silver Earrings",
       "price": 1200.0,
       "imageUrl": "https://example.com/silver_earrings.jpg",
@@ -62,9 +86,92 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
       "isPopular": false,
       "discount": 5.0,
     },
-    // Bags products
     {
-      "id": 3,
+      "id": 6,
+      "name": "Gold Earrings",
+      "price": 3500.0,
+      "imageUrl": "https://example.com/gold_earrings.jpg",
+      "section": "Jewelry",
+      "type": "Earrings",
+      "isPopular": true,
+      "discount": 10.0,
+    },
+    {
+      "id": 7,
+      "name": "Pearl Earrings",
+      "price": 2000.0,
+      "imageUrl": "https://example.com/pearl_earrings.jpg",
+      "section": "Jewelry",
+      "type": "Earrings",
+      "isPopular": true,
+      "discount": 8.0,
+    },
+    // Bracelets
+    {
+      "id": 9,
+      "name": "Pearl Bracelet",
+      "price": 2500.0,
+      "imageUrl": "https://example.com/pearl_bracelet.jpg",
+      "section": "Jewelry",
+      "type": "Bracelets",
+      "isPopular": false,
+      "discount": 8.0,
+    },
+    {
+      "id": 10,
+      "name": "Gold Bracelet",
+      "price": 4000.0,
+      "imageUrl": "https://example.com/gold_bracelet.jpg",
+      "section": "Jewelry",
+      "type": "Bracelets",
+      "isPopular": true,
+      "discount": 12.0,
+    },
+    {
+      "id": 11,
+      "name": "Silver Bracelet",
+      "price": 1800.0,
+      "imageUrl": "https://example.com/silver_bracelet.jpg",
+      "section": "Jewelry",
+      "type": "Bracelets",
+      "isPopular": false,
+      "discount": 5.0,
+    },
+    // Rings
+    {
+      "id": 13,
+      "name": "Diamond Ring",
+      "price": 8000.0,
+      "imageUrl": "https://example.com/diamond_ring.jpg",
+      "section": "Jewelry",
+      "type": "Rings",
+      "isPopular": true,
+      "discount": 10.0,
+    },
+    {
+      "id": 14,
+      "name": "Gold Ring",
+      "price": 4500.0,
+      "imageUrl": "https://example.com/gold_ring.jpg",
+      "section": "Jewelry",
+      "type": "Rings",
+      "isPopular": true,
+      "discount": 12.0,
+    },
+    {
+      "id": 15,
+      "name": "Silver Ring",
+      "price": 2500.0,
+      "imageUrl": "https://example.com/silver_ring.jpg",
+      "section": "Jewelry",
+      "type": "Rings",
+      "isPopular": false,
+      "discount": 6.0,
+    },
+    // ---------------- Bags ----------------
+    // Handbags
+    {
+      "id": 17,
       "name": "Leather Handbag",
       "price": 3000.0,
       "imageUrl": "https://example.com/leather_handbag.jpg",
@@ -74,7 +181,28 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
       "discount": 10.0,
     },
     {
-      "id": 4,
+      "id": 18,
+      "name": "Designer Handbag",
+      "price": 7000.0,
+      "imageUrl": "https://example.com/designer_handbag.jpg",
+      "section": "Bags",
+      "type": "Handbags",
+      "isPopular": true,
+      "discount": 20.0,
+    },
+    {
+      "id": 19,
+      "name": "Casual Handbag",
+      "price": 2500.0,
+      "imageUrl": "https://example.com/casual_handbag.jpg",
+      "section": "Bags",
+      "type": "Handbags",
+      "isPopular": false,
+      "discount": 8.0,
+    },
+    // Backpacks
+    {
+      "id": 21,
       "name": "Backpack",
       "price": 1500.0,
       "imageUrl": "https://example.com/backpack.jpg",
@@ -83,9 +211,82 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
       "isPopular": false,
       "discount": 0.0,
     },
-    // Watches products
     {
-      "id": 5,
+      "id": 22,
+      "name": "Laptop Backpack",
+      "price": 2500.0,
+      "imageUrl": "https://example.com/laptop_backpack.jpg",
+      "section": "Bags",
+      "type": "Backpacks",
+      "isPopular": true,
+      "discount": 10.0,
+    },
+    {
+      "id": 23,
+      "name": "Travel Backpack",
+      "price": 3000.0,
+      "imageUrl": "https://example.com/travel_backpack.jpg",
+      "section": "Bags",
+      "type": "Backpacks",
+      "isPopular": true,
+      "discount": 12.0,
+    },
+    // Clutches
+    {
+      "id": 25,
+      "name": "Clutch Bag",
+      "price": 2000.0,
+      "imageUrl": "https://example.com/clutch_bag.jpg",
+      "section": "Bags",
+      "type": "Clutches",
+      "isPopular": true,
+      "discount": 12.0,
+    },
+    {
+      "id": 26,
+      "name": "Party Clutch",
+      "price": 2500.0,
+      "imageUrl": "https://example.com/party_clutch.jpg",
+      "section": "Bags",
+      "type": "Clutches",
+      "isPopular": true,
+      "discount": 15.0,
+    },
+    // Totes
+    {
+      "id": 29,
+      "name": "Canvas Tote",
+      "price": 1500.0,
+      "imageUrl": "https://example.com/canvas_tote.jpg",
+      "section": "Bags",
+      "type": "Totes",
+      "isPopular": true,
+      "discount": 10.0,
+    },
+    {
+      "id": 30,
+      "name": "Leather Tote",
+      "price": 3500.0,
+      "imageUrl": "https://example.com/leather_tote.jpg",
+      "section": "Bags",
+      "type": "Totes",
+      "isPopular": true,
+      "discount": 15.0,
+    },
+    {
+      "id": 31,
+      "name": "Shopping Tote",
+      "price": 1200.0,
+      "imageUrl": "https://example.com/shopping_tote.jpg",
+      "section": "Bags",
+      "type": "Totes",
+      "isPopular": false,
+      "discount": 5.0,
+    },
+    // ---------------- Watches ----------------
+    // Analog
+    {
+      "id": 33,
       "name": "Analog Watch",
       "price": 4000.0,
       "imageUrl": "https://example.com/analog_watch.jpg",
@@ -95,7 +296,39 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
       "discount": 20.0,
     },
     {
-      "id": 6,
+      "id": 34,
+      "name": "Classic Analog Watch",
+      "price": 5000.0,
+      "imageUrl": "https://example.com/classic_analog.jpg",
+      "section": "Watches",
+      "type": "Analog",
+      "isPopular": true,
+      "discount": 15.0,
+    },
+    // Digital
+    {
+      "id": 37,
+      "name": "Digital Watch",
+      "price": 2500.0,
+      "imageUrl": "https://example.com/digital_watch.jpg",
+      "section": "Watches",
+      "type": "Digital",
+      "isPopular": true,
+      "discount": 18.0,
+    },
+    {
+      "id": 38,
+      "name": "LED Digital Watch",
+      "price": 3000.0,
+      "imageUrl": "https://example.com/led_digital.jpg",
+      "section": "Watches",
+      "type": "Digital",
+      "isPopular": true,
+      "discount": 20.0,
+    },
+    // Smart Watches
+    {
+      "id": 41,
       "name": "Smart Watch",
       "price": 6000.0,
       "imageUrl": "https://example.com/smart_watch.jpg",
@@ -103,6 +336,37 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
       "type": "Smart Watches",
       "isPopular": false,
       "discount": 5.0,
+    },
+    {
+      "id": 42,
+      "name": "Fitness Smart Watch",
+      "price": 6500.0,
+      "imageUrl": "https://example.com/fitness_smart.jpg",
+      "section": "Watches",
+      "type": "Smart Watches",
+      "isPopular": true,
+      "discount": 15.0,
+    },
+    // Luxury Watches
+    {
+      "id": 45,
+      "name": "Luxury Watch",
+      "price": 12000.0,
+      "imageUrl": "https://example.com/luxury_watch.jpg",
+      "section": "Watches",
+      "type": "Luxury",
+      "isPopular": true,
+      "discount": 25.0,
+    },
+    {
+      "id": 46,
+      "name": "Diamond Luxury Watch",
+      "price": 20000.0,
+      "imageUrl": "https://example.com/diamond_luxury.jpg",
+      "section": "Watches",
+      "type": "Luxury",
+      "isPopular": true,
+      "discount": 30.0,
     },
   ];
 
@@ -186,126 +450,132 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: ScaleTransition(
-        scale: _fabScaleAnimation,
-        child: FloatingActionButton(
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            setState(() {
-              _selectedType.updateAll((key, value) => null);
-              _selectedType.forEach((section, _) => _saveSelection(section, null));
-            });
-          },
-          backgroundColor: Colors.white,
-          child: const Icon(Icons.refresh, color: Colors.black),
-          tooltip: 'Reset Selections',
+    return ChangeNotifierProvider.value(
+      value: WishlistManager.instance, // Provide WishlistManager instance
+      child: Scaffold(
+        floatingActionButton: ScaleTransition(
+          scale: _fabScaleAnimation,
+          child: FloatingActionButton(
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              setState(() {
+                _selectedType.updateAll((key, value) => null);
+                _selectedType.forEach((section, _) => _saveSelection(section, null));
+              });
+            },
+            backgroundColor: Colors.white,
+            child: const Icon(Icons.refresh, color: Colors.black),
+            tooltip: 'Reset Selections',
+          ),
         ),
-      ),
-      body: AnimatedContainer(
-        duration: const Duration(seconds: 8),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-        ),
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // App bar
-                      _buildAppBar(),
-                      // Search bar
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Focus(
-                          onFocusChange: (hasFocus) {
-                            setState(() {
-                              _isSearchFocused = hasFocus;
-                            });
-                          },
-                          child: TextField(
-                            controller: _searchController,
-                            decoration: InputDecoration(
-                              hintText: 'Search accessories...',
-                              hintStyle: GoogleFonts.poppins(color: Colors.grey[600]),
-                              prefixIcon: const Icon(IconlyLight.search, color: Colors.grey),
-                              suffixIcon: _searchQuery.isNotEmpty
-                                  ? IconButton(
-                                icon: const Icon(Icons.clear, color: Colors.grey),
-                                onPressed: () {
-                                  setState(() {
-                                    _searchController.clear();
-                                    _searchQuery = '';
-                                  });
-                                },
-                              )
-                                  : null,
-                              filled: true,
-                              fillColor: Colors.white.withOpacity(0.8),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: BorderSide(color: Colors.grey[400]!, width: 1),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: BorderSide(
-                                  color: _isSearchFocused ? const Color(0xFF2e4cb6) : Colors.grey[400]!,
-                                  width: 2,
+        body: AnimatedContainer(
+          duration: const Duration(seconds: 8),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+          ),
+          child: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // App bar
+                        _buildAppBar(),
+                        // Search bar
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Focus(
+                            onFocusChange: (hasFocus) {
+                              setState(() {
+                                _isSearchFocused = hasFocus;
+                              });
+                            },
+                            child: TextField(
+                              controller: _searchController,
+                              decoration: InputDecoration(
+                                hintText: 'Search accessories...',
+                                hintStyle: GoogleFonts.poppins(color: Colors.grey[600]),
+                                prefixIcon: const Icon(IconlyLight.search, color: Colors.grey),
+                                suffixIcon: _searchQuery.isNotEmpty
+                                    ? IconButton(
+                                  icon: const Icon(Icons.clear, color: Colors.grey),
+                                  onPressed: () {
+                                    setState(() {
+                                      _searchController.clear();
+                                      _searchQuery = '';
+                                    });
+                                  },
+                                )
+                                    : null,
+                                filled: true,
+                                fillColor: Colors.white.withOpacity(0.8),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: BorderSide(color: Colors.grey[400]!, width: 1),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: BorderSide(
+                                    color: _isSearchFocused
+                                        ? const Color(0xFF2e4cb6)
+                                        : Colors.grey[400]!,
+                                    width: 2,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(color: Color(0xFF2e4cb6), width: 2),
                                 ),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Color(0xFF2e4cb6), width: 2),
-                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  _searchQuery = value.toLowerCase();
+                                });
+                              },
                             ),
-                            onChanged: (value) {
-                              setState(() {
-                                _searchQuery = value.toLowerCase();
-                              });
+                          ),
+                        ),
+                        // Search suggestions
+                        if (_isSearchFocused && _searchQuery.isNotEmpty)
+                          _buildSearchSuggestions(),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              double width = constraints.maxWidth;
+                              int crossAxisCount = (width / 250).floor().clamp(1, 2);
+                              double childWidth = (width - (crossAxisCount - 1) * 16) / crossAxisCount;
+                              double childHeight = childWidth * 1.3;
+
+                              return GridView.count(
+                                crossAxisCount: crossAxisCount,
+                                crossAxisSpacing: 16,
+                                mainAxisSpacing: 16,
+                                physics: const NeverScrollableScrollPhysics(),
+                                childAspectRatio: childWidth / childHeight,
+                                shrinkWrap: true,
+                                padding: const EdgeInsets.all(8.0),
+                                children: _selectedType.keys
+                                    .where((section) =>
+                                section.toLowerCase().contains(_searchQuery) ||
+                                    _accessoryTypes[section]!
+                                        .any((type) => type.toLowerCase().contains(_searchQuery)))
+                                    .map((section) {
+                                  return _buildSectionCard(section);
+                                }).toList(),
+                              );
                             },
                           ),
                         ),
-                      ),
-                      // Search suggestions
-                      if (_isSearchFocused && _searchQuery.isNotEmpty)
-                        _buildSearchSuggestions(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            double width = constraints.maxWidth;
-                            int crossAxisCount = (width / 250).floor().clamp(1, 2);
-                            double childWidth = (width - (crossAxisCount - 1) * 16) / crossAxisCount;
-                            double childHeight = childWidth * 1.3;
-
-                            return GridView.count(
-                              crossAxisCount: crossAxisCount,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              physics: const NeverScrollableScrollPhysics(),
-                              childAspectRatio: childWidth / childHeight,
-                              shrinkWrap: true,
-                              padding: const EdgeInsets.all(8.0),
-                              children: _selectedType.keys
-                                  .where((section) =>
-                              section.toLowerCase().contains(_searchQuery) ||
-                                  _accessoryTypes[section]!.any((type) => type.toLowerCase().contains(_searchQuery)))
-                                  .map((section) {
-                                return _buildSectionCard(section);
-                              }).toList(),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -313,32 +583,64 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
   }
 
   Widget _buildAppBar() {
-    return AppBar(
-      title: Text(
-        "Accessories",
-        style: GoogleFonts.poppins(
-          fontWeight: FontWeight.bold,
-          fontSize: 24,
-          color: Colors.black,
-        ),
-      ),
-      backgroundColor: Colors.white,
-      elevation: 0,
-      centerTitle: true,
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.favorite_border, color: Colors.black),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) =>  WishlistScreen(category: 'Accessories'),
-              ),
-            );
-          },
-          tooltip: 'Wishlist',
-        ),
-      ],
+    return Consumer<WishlistManager>(
+      builder: (context, wishlistManager, child) {
+        final wishlistCount = wishlistManager.getWishlist('Accessories').length;
+        print('Accessories wishlist count updated: $wishlistCount'); // Debug log—remove later if you want
+
+        return AppBar(
+          title: Text(
+            "Accessories",
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              color: Colors.black,
+            ),
+          ),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          centerTitle: true,
+          actions: [
+            Stack(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.favorite_border, color: Colors.black),
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => WishlistScreen(category: 'Accessories'),
+                      ),
+                    );
+                    setState(() {}); // Fallback refresh on return
+                  },
+                  tooltip: 'Wishlist',
+                ),
+                if (wishlistCount > 0)
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '$wishlistCount',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
