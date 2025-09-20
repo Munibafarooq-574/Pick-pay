@@ -317,7 +317,7 @@ class _ShoesScreenState extends State<ShoesScreen> with TickerProviderStateMixin
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const WishlistScreen(category: 'Shoes'),
+                  builder: (_) => WishlistScreen(category: 'Shoes'),
                 ),
             );
           },

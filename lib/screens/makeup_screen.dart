@@ -294,9 +294,10 @@ class _BeautyScreenState extends State<MakeUpScreen> with TickerProviderStateMix
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const WishlistScreen(category: 'Makeup'),
+                builder: (_) => WishlistScreen(category: 'Beauty'),
               ),
             );
+
           },
           tooltip: 'Wishlist',
         ),
@@ -449,7 +450,7 @@ class _BeautyScreenState extends State<MakeUpScreen> with TickerProviderStateMix
         MaterialPageRoute(
           builder: (_) => ProductListScreen(
             products: filteredProducts,
-            mainCategory: 'beauty', // Pass the main category
+            mainCategory: 'Beauty', // Pass the main category
           ),
         ),
       );

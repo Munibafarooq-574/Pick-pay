@@ -29,6 +29,26 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
   late Animation<Color?> _colorAnimation1;
   late Animation<Color?> _colorAnimation2;
 
+  String _normalizeCategory(String category) {
+    // Convert to lowercase for case-insensitive matching
+    final lowerCategory = category.toLowerCase();
+
+    switch (lowerCategory) {
+      case 'makeup':
+      case 'beauty':  // <-- Add this to handle 'beauty' lowercase
+        return 'Beauty';
+      case 'clothes':
+      case 'clothing':
+        return 'Clothing';
+      case 'shoe':
+      case 'shoes':
+        return 'Shoes';
+      default:
+      // Standardize to title case (e.g., 'accessories' -> 'Accessories')
+        return category[0].toUpperCase() + category.substring(1).toLowerCase();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -210,13 +230,16 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
     final price = (product['price'] as num?)?.toDouble().toStringAsFixed(2) ?? '0.00';
     final type = product['type'] ?? 'Unknown';
 
+    final normalizedCategory = _normalizeCategory(mainCategory);
+
     final wishlistProduct = {
       'name': name,
       'price': double.tryParse(price) ?? 0.0,
       'type': type,
       'imageUrl': product['imageUrl'] ?? 'https://example.com/placeholder.jpg',
-      'category': mainCategory, // Added category here
+      'category': normalizedCategory,  // ✅ normalized use
     };
+
 
     return GestureDetector(
       onTap: () {
@@ -276,7 +299,7 @@ class _ProductListScreenState extends State<ProductListScreen> with SingleTicker
                     top: 8,
                     child: GestureDetector(
                       onTap: () {
-                        WishlistManager.instance.addToWishlist(mainCategory, wishlistProduct);
+                        WishlistManager.instance.addToWishlist(normalizedCategory, wishlistProduct);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('$name added to wishlist')),
                         );

@@ -332,7 +332,7 @@ class _AccessoriesScreenState extends State<AccessoriesScreen> with TickerProvid
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const WishlistScreen(category: 'Accessories'),
+                builder: (_) =>  WishlistScreen(category: 'Accessories'),
               ),
             );
           },

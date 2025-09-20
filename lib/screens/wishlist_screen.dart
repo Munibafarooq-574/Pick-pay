@@ -9,7 +9,27 @@ import '../screens/cart_screen.dart';
 class WishlistScreen extends StatelessWidget {
   final String category; // Pass category when opening this screen
 
-  const WishlistScreen({super.key, required this.category});
+  WishlistScreen({super.key, required String category})
+      : category = _normalizeCategory(category);
+
+
+  static String _normalizeCategory(String category) {
+    final lowerCategory = category.toLowerCase();
+    switch (category) {
+      case 'makeup':
+      case 'beauty':  // <-- Add this to handle 'beauty' lowercase
+        return 'Beauty';
+      case 'clothes':
+      case 'clothing':
+        return 'Clothing';
+      case 'shoe':
+      case 'shoes':
+        return 'Shoes';
+      default:
+      // Standardize to title case (e.g., 'accessories' -> 'Accessories')
+        return category[0].toUpperCase() + category.substring(1).toLowerCase();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
