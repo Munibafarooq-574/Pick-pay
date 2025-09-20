@@ -344,7 +344,7 @@ class _ClothingScreenState extends State<ClothingScreen> with TickerProviderStat
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const WishlistScreen(category: 'Clothing'),
+                builder: (_) =>  WishlistScreen(category: 'Clothing'),
               ),
             );
 
