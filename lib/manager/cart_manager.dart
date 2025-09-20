@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CartManager {
+class CartManager with ChangeNotifier {
   CartManager._privateConstructor();
   static final CartManager instance = CartManager._privateConstructor();
 
@@ -28,6 +28,7 @@ class CartManager {
         }
       ];
     }
+    notifyListeners(); // Notify listeners of the change
   }
 
   void updateQuantity(int index, int quantity) {
@@ -39,13 +40,22 @@ class CartManager {
         currentItems[index]['quantity'] = quantity;
       }
       cartItemsNotifier.value = [...currentItems]; // Trigger UI update
+      notifyListeners(); // Notify listeners of the change
     }
   }
 
-  void clearCart() => cartItemsNotifier.value = [];
+  void clearCart() {
+    cartItemsNotifier.value = [];
+    notifyListeners(); // Notify listeners of the change
+  }
 
   double getTotal() {
     return cartItemsNotifier.value.fold(
         0, (sum, item) => sum + (item['price'] * item['quantity']));
+  }
+
+  // Getter for the cart items list
+  List<Map<String, dynamic>> getCart() {
+    return cartItemsNotifier.value;
   }
 }
